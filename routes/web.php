@@ -5,11 +5,38 @@ use Illuminate\Support\Facades\Route;
 Route::view('/', 'welcome')->name('home');
 
 Route::middleware(['auth', 'verified'])->group(function () {
+    // Public user dashboard (default)
     Route::view('dashboard', 'dashboard')->name('dashboard');
-});
 
-Route::middleware(['auth', 'verified', 'role:admin'])->group(function () {
-    Route::view('admin', 'admin.dashboard')->name('admin.dashboard');
+    // Learning Administrator dashboard
+    Route::middleware(['role:learning_administrator'])->group(function () {
+        Route::view('learning-admin/dashboard', 'dashboards.learning-admin')->name('learning-admin.dashboard');
+    });
+
+    // Learning Coordinator dashboard
+    Route::middleware(['role:learning_coordinator'])->group(function () {
+        Route::view('learning-coordinator/dashboard', 'dashboards.learning-coordinator')->name('learning-coordinator.dashboard');
+    });
+
+    // Admin Coordinator dashboard
+    Route::middleware(['role:admin_coordinator'])->group(function () {
+        Route::view('admin-coordinator/dashboard', 'dashboards.admin-coordinator')->name('admin-coordinator.dashboard');
+    });
+
+    // SME dashboard
+    Route::middleware(['role:sme'])->group(function () {
+        Route::view('sme/dashboard', 'dashboards.sme')->name('sme.dashboard');
+    });
+
+    // Employee dashboard
+    Route::middleware(['role:employee'])->group(function () {
+        Route::view('employee/dashboard', 'dashboards.employee')->name('employee.dashboard');
+    });
+
+    // Helpdesk Admin dashboard
+    Route::middleware(['role:helpdesk_admin'])->group(function () {
+        Route::view('helpdesk/dashboard', 'dashboards.helpdesk')->name('helpdesk.dashboard');
+    });
 });
 
 require __DIR__.'/settings.php';

@@ -45,19 +45,27 @@ class User extends Authenticatable
     }
 
     /**
-     * Check if the user has the admin role.
+     * Check if the user has the learning administrator role.
      */
-    public function isAdmin(): bool
+    public function isLearningAdministrator(): bool
     {
-        return $this->role === 'admin';
+        return $this->role === 'learning_administrator';
     }
 
     /**
-     * Check if the user has the coordinator role.
+     * Check if the user has the learning coordinator role.
      */
-    public function isCoordinator(): bool
+    public function isLearningCoordinator(): bool
     {
-        return $this->role === 'coordinator';
+        return $this->role === 'learning_coordinator';
+    }
+
+    /**
+     * Check if the user has the admin coordinator role.
+     */
+    public function isAdminCoordinator(): bool
+    {
+        return $this->role === 'admin_coordinator';
     }
 
     /**
@@ -83,5 +91,12 @@ class User extends Authenticatable
     {
         return $this->role === 'public';
     }
-}
 
+    /**
+     * Check if the user has the helpdesk admin role.
+     */
+    public function isHelpdeskAdmin(): bool
+    {
+        return $this->role === 'helpdesk_admin';
+    }
+}
