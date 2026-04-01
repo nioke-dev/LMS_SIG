@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\UserManagementController;
 use Illuminate\Support\Facades\Route;
 
 Route::view('/', 'welcome')->name('home');
@@ -11,6 +12,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Learning Administrator dashboard
     Route::middleware(['role:learning_administrator'])->group(function () {
         Route::view('learning-admin/dashboard', 'dashboards.learning-admin')->name('learning-admin.dashboard');
+        Route::get('learning-admin/users', [UserManagementController::class, 'index'])->name('users.index');
+        Route::get('learning-admin/users/create', [UserManagementController::class, 'create'])->name('users.create');
+        Route::post('learning-admin/users', [UserManagementController::class, 'store'])->name('users.store');
+        Route::get('learning-admin/users/{user}/edit', [UserManagementController::class, 'edit'])->name('users.edit');
+        Route::put('learning-admin/users/{user}', [UserManagementController::class, 'update'])->name('users.update');
+        Route::delete('learning-admin/users/{user}', [UserManagementController::class, 'destroy'])->name('users.destroy');
     });
 
     // Learning Coordinator dashboard

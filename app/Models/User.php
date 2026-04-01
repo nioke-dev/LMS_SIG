@@ -19,6 +19,20 @@ class User extends Authenticatable
     /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable, TwoFactorAuthenticatable;
 
+    public const ROLE_LEARNING_ADMINISTRATOR = 'learning_administrator';
+
+    public const ROLE_LEARNING_COORDINATOR = 'learning_coordinator';
+
+    public const ROLE_ADMIN_COORDINATOR = 'admin_coordinator';
+
+    public const ROLE_SME = 'sme';
+
+    public const ROLE_EMPLOYEE = 'employee';
+
+    public const ROLE_PUBLIC = 'public';
+
+    public const ROLE_HELPDESK_ADMIN = 'helpdesk_admin';
+
     /**
      * Get the attributes that should be cast.
      *
@@ -29,6 +43,24 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+        ];
+    }
+
+    /**
+     * Get the supported application roles.
+     *
+     * @return list<string>
+     */
+    public static function roles(): array
+    {
+        return [
+            self::ROLE_LEARNING_ADMINISTRATOR,
+            self::ROLE_LEARNING_COORDINATOR,
+            self::ROLE_ADMIN_COORDINATOR,
+            self::ROLE_SME,
+            self::ROLE_EMPLOYEE,
+            self::ROLE_PUBLIC,
+            self::ROLE_HELPDESK_ADMIN,
         ];
     }
 
@@ -49,7 +81,7 @@ class User extends Authenticatable
      */
     public function isLearningAdministrator(): bool
     {
-        return $this->role === 'learning_administrator';
+        return $this->role === self::ROLE_LEARNING_ADMINISTRATOR;
     }
 
     /**
@@ -57,7 +89,7 @@ class User extends Authenticatable
      */
     public function isLearningCoordinator(): bool
     {
-        return $this->role === 'learning_coordinator';
+        return $this->role === self::ROLE_LEARNING_COORDINATOR;
     }
 
     /**
@@ -65,7 +97,7 @@ class User extends Authenticatable
      */
     public function isAdminCoordinator(): bool
     {
-        return $this->role === 'admin_coordinator';
+        return $this->role === self::ROLE_ADMIN_COORDINATOR;
     }
 
     /**
@@ -73,7 +105,7 @@ class User extends Authenticatable
      */
     public function isSME(): bool
     {
-        return $this->role === 'sme';
+        return $this->role === self::ROLE_SME;
     }
 
     /**
@@ -81,7 +113,7 @@ class User extends Authenticatable
      */
     public function isEmployee(): bool
     {
-        return $this->role === 'employee';
+        return $this->role === self::ROLE_EMPLOYEE;
     }
 
     /**
@@ -89,7 +121,7 @@ class User extends Authenticatable
      */
     public function isPublic(): bool
     {
-        return $this->role === 'public';
+        return $this->role === self::ROLE_PUBLIC;
     }
 
     /**
@@ -97,6 +129,6 @@ class User extends Authenticatable
      */
     public function isHelpdeskAdmin(): bool
     {
-        return $this->role === 'helpdesk_admin';
+        return $this->role === self::ROLE_HELPDESK_ADMIN;
     }
 }
