@@ -16,8 +16,26 @@ return new class extends Migration
             $table->string('name');
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
-            $table->string('password');
+            $table->string('password')->nullable();
             $table->rememberToken();
+
+            // Two-Factor Authentication (Fortify)
+            $table->text('two_factor_secret')->nullable();
+            $table->text('two_factor_recovery_codes')->nullable();
+            $table->timestamp('two_factor_confirmed_at')->nullable();
+
+            // Role & Access Control
+            $table->string('role')->default('public');
+            $table->string('nik')->nullable()->unique();
+            $table->string('position')->nullable();
+
+            // Organization Hierarchy (Relational)
+            $table->foreignId('organization_id')->nullable()->constrained('organizations')->onDelete('set null');
+            $table->string('work_location')->nullable();   // Lokasi kerja: Tuban, Gresik, Jakarta, dll.
+
+            // SSO
+            $table->string('google_id')->nullable();
+
             $table->timestamps();
         });
 

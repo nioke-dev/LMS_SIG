@@ -12,12 +12,17 @@ use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Str;
 use Laravel\Fortify\TwoFactorAuthenticatable;
 
-#[Fillable(['name', 'email', 'password', 'role'])]
+#[Fillable(['name', 'nik', 'email', 'password', 'role', 'position', 'google_id', 'work_location', 'organization_id'])]
 #[Hidden(['password', 'two_factor_secret', 'two_factor_recovery_codes', 'remember_token'])]
 class User extends Authenticatable
 {
     /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable, TwoFactorAuthenticatable;
+
+    public function organization()
+    {
+        return $this->belongsTo(Organization::class);
+    }
 
     public const ROLE_LEARNING_ADMINISTRATOR = 'learning_administrator';
 
@@ -130,5 +135,46 @@ class User extends Authenticatable
     public function isHelpdeskAdmin(): bool
     {
         return $this->role === self::ROLE_HELPDESK_ADMIN;
+    }
+
+    /**
+     * Get the full organizational hierarchy path as a collection of Organization models.
+     */
+    public function getOrganizationPath()
+    {
+        if (!$this->organization) {
+            return collect([]);
+        }
+
+        $path = collect([]);
+        $current = $this->organization()->with('level')->first();
+        
+        while ($current) {
+            $path->push($current);
+            $current = $current->parent()->with('level')->first();
+        }
+
+        return $path->reverse()->values();
+    }
+
+    /**
+     * Get the shortened organizational path (PT + Last 2 Levels).
+     * Returns a collection of Organization models or "..." strings.
+     */
+    public function getShortOrganizationPath()
+    {
+        $fullPath = $this->getOrganizationPath();
+        $count = $fullPath->count();
+
+        if ($count <= 3) {
+            return $fullPath;
+        }
+
+        return collect([
+            $fullPath->first(),
+            '...',
+            $fullPath->get($count - 2),
+            $fullPath->last()
+        ]);
     }
 }

@@ -19,7 +19,9 @@ class RoleMiddleware
         $user = $request->user();
 
         if (! $user || ! in_array($user->role, $roles)) {
-            abort(403, 'Unauthorized. You do not have the required role.');
+            return redirect()
+                ->route('home')
+                ->with('access_denied', 'Maaf, Anda tidak memiliki otorisasi untuk mengakses halaman tersebut. Silakan hubungi administrator jika Anda merasa ini adalah kesalahan.');
         }
 
         return $next($request);

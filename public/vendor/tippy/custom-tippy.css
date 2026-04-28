@@ -1,0 +1,29 @@
+/* Custom Tada Animation (from Animate.css) */
+@keyframes tada {
+    0% { transform: scale3d(1, 1, 1); }
+    10%, 20% { transform: scale3d(.9, .9, .9) rotate3d(0, 0, 1, -3deg); }
+    30%, 50%, 70%, 90% { transform: scale3d(1.1, 1.1, 1.1) rotate3d(0, 0, 1, 3deg); }
+    40%, 60%, 80% { transform: scale3d(1.1, 1.1, 1.1) rotate3d(0, 0, 1, -3deg); }
+    to { transform: scale3d(1, 1, 1); }
+}
+
+.tippy-box[data-animation="tada"][data-state="visible"] {
+    animation: tada 1s both;
+}
+
+/* Premium Tippy Look */
+.tippy-box {
+    background-color: #1e293b !important; /* tertiary-container */
+    color: #ffffff !important;
+    border-radius: 12px !important;
+    font-weight: 700 !important;
+    font-size: 11px !important;
+    padding: 8px 12px !important; /* Slightly more vertical padding */
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05) !important;
+    max-width: 220px !important; /* Restrict width for rectangular shape */
+    text-align: center !important;
+    line-height: 1.4 !important;
+}
+.tippy-arrow {
+    color: #1e293b !important;
+}

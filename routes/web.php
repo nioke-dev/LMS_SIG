@@ -3,47 +3,61 @@
 use App\Http\Controllers\UserManagementController;
 use Illuminate\Support\Facades\Route;
 
-Route::view('/', 'welcome')->name('home');
+Route::view('/', 'pages.landing.index')->name('home');
 
 Route::middleware(['auth', 'verified'])->group(function () {
-    // Public user dashboard (default)
+    // ----------------------------------------------------
+    // LEARNER PORTAL (Public & Employee)
+    // ----------------------------------------------------
     Route::view('dashboard', 'dashboard')->name('dashboard');
-
-    // Learning Administrator dashboard
-    Route::middleware(['role:learning_administrator'])->group(function () {
-        Route::view('learning-admin/dashboard', 'dashboards.learning-admin')->name('learning-admin.dashboard');
-        Route::get('learning-admin/users', [UserManagementController::class, 'index'])->name('users.index');
-        Route::get('learning-admin/users/create', [UserManagementController::class, 'create'])->name('users.create');
-        Route::post('learning-admin/users', [UserManagementController::class, 'store'])->name('users.store');
-        Route::get('learning-admin/users/{user}/edit', [UserManagementController::class, 'edit'])->name('users.edit');
-        Route::put('learning-admin/users/{user}', [UserManagementController::class, 'update'])->name('users.update');
-        Route::delete('learning-admin/users/{user}', [UserManagementController::class, 'destroy'])->name('users.destroy');
-    });
-
-    // Learning Coordinator dashboard
-    Route::middleware(['role:learning_coordinator'])->group(function () {
-        Route::view('learning-coordinator/dashboard', 'dashboards.learning-coordinator')->name('learning-coordinator.dashboard');
-    });
-
-    // Admin Coordinator dashboard
-    Route::middleware(['role:admin_coordinator'])->group(function () {
-        Route::view('admin-coordinator/dashboard', 'dashboards.admin-coordinator')->name('admin-coordinator.dashboard');
-    });
-
-    // SME dashboard
-    Route::middleware(['role:sme'])->group(function () {
-        Route::view('sme/dashboard', 'dashboards.sme')->name('sme.dashboard');
-    });
-
-    // Employee dashboard
     Route::middleware(['role:employee'])->group(function () {
-        Route::view('employee/dashboard', 'dashboards.employee')->name('employee.dashboard');
+        Route::view('employee/dashboard', 'pages.employee.index')->name('employee.dashboard');
     });
 
-    // Helpdesk Admin dashboard
+    // ----------------------------------------------------
+    // MANAGEMENT PORTAL (Back-Office)
+    // ----------------------------------------------------
+    Route::middleware(['role:learning_administrator'])->group(function () {
+        Route::view('learning-admin/dashboard', 'pages.admin.index')->name('learning-admin.dashboard');
+        Route::resource('learning-admin/users', UserManagementController::class)->except(['show']);
+    });
+    Route::middleware(['role:learning_coordinator'])->group(function () {
+        Route::get('learning-coordinator/dashboard', [\App\Http\Controllers\TnaSubmissionController::class, 'dashboard'])->name('learning-coordinator.dashboard');
+
+        // TNA Routes
+        Route::get('learning-coordinator/daftar-usulan', [\App\Http\Controllers\TnaSubmissionController::class, 'index'])->name('learning-coordinator.daftar-usulan');
+        Route::get('learning-coordinator/buat-usulan', [\App\Http\Controllers\TnaSubmissionController::class, 'create'])->name('learning-coordinator.buat-usulan');
+        Route::get('learning-coordinator/tna/{id}', [\App\Http\Controllers\TnaSubmissionController::class, 'show'])->name('learning-coordinator.tna.show');
+        Route::post('learning-coordinator/tna', [\App\Http\Controllers\TnaSubmissionController::class, 'store'])->name('learning-coordinator.tna.store');
+        Route::get('learning-coordinator/tna/{id}/edit', [\App\Http\Controllers\TnaSubmissionController::class, 'edit'])->name('learning-coordinator.tna.edit');
+        Route::put('learning-coordinator/tna/{id}', [\App\Http\Controllers\TnaSubmissionController::class, 'update'])->name('learning-coordinator.tna.update');
+        Route::delete('learning-coordinator/tna/{id}', [\App\Http\Controllers\TnaSubmissionController::class, 'destroy'])->name('learning-coordinator.tna.destroy');
+
+        Route::get('learning-coordinator/export-tna', [\App\Http\Controllers\TnaExportController::class, 'export'])->name('learning-coordinator.export-tna');
+        
+        // Profile Routes
+        Route::get('learning-coordinator/profile', [\App\Http\Controllers\ProfileController::class, 'show'])->name('learning-coordinator.profile');
+        Route::get('learning-coordinator/profile/change-password', [\App\Http\Controllers\ProfileController::class, 'changePassword'])->name('learning-coordinator.profile.change-password');
+    });
+    Route::middleware(['role:admin_coordinator'])->group(function () {
+        Route::view('admin-coordinator/dashboard', 'pages.admin-coordinator.index')->name('admin-coordinator.dashboard');
+    });
+    Route::middleware(['role:sme'])->group(function () {
+        Route::view('sme/dashboard', 'pages.sme.index')->name('sme.dashboard');
+    });
     Route::middleware(['role:helpdesk_admin'])->group(function () {
-        Route::view('helpdesk/dashboard', 'dashboards.helpdesk')->name('helpdesk.dashboard');
+        Route::view('helpdesk/dashboard', 'pages.helpdesk.index')->name('helpdesk.dashboard');
     });
 });
 
-require __DIR__.'/settings.php';
+// Google SSO Routes
+Route::get('auth/google', [\App\Http\Controllers\Auth\SocialiteController::class, 'redirectToGoogle'])->name('auth.google');
+Route::get('auth/google/callback', [\App\Http\Controllers\Auth\SocialiteController::class, 'handleGoogleCallback']);
+
+// Management Login Route (Back-Office Entry)
+Route::middleware('guest')->group(function () {
+    Route::get('backoffice', [\App\Http\Controllers\Auth\ManagementAuthController::class, 'showLoginForm'])->name('admin.login');
+    Route::post('backoffice', [\App\Http\Controllers\Auth\ManagementAuthController::class, 'login'])->name('admin.login.submit');
+});
+
+require __DIR__ . '/settings.php';

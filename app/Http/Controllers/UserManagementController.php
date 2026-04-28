@@ -12,14 +12,14 @@ class UserManagementController extends Controller
 {
     public function index(): View
     {
-        return view('users.index', [
+        return view('pages.admin.users.index', [
             'users' => User::query()->orderBy('name')->get(),
         ]);
     }
 
     public function create(): View
     {
-        return view('users.create', [
+        return view('pages.admin.users.create', [
             'roles' => User::roles(),
         ]);
     }
@@ -42,7 +42,7 @@ class UserManagementController extends Controller
 
     public function edit(User $user): View
     {
-        return view('users.edit', [
+        return view('pages.admin.users.edit', [
             'user' => $user,
             'roles' => User::roles(),
         ]);
