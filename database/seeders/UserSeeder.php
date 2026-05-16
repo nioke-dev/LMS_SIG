@@ -28,15 +28,16 @@ class UserSeeder extends Seeder
             [
                 'name'            => 'Nurul Mustofa',
                 'nik'             => '19920001',
-                'email'           => 'nurul.mustofa@sig.co.id',
+                'email'           => 'nurul.mustofa@sig.id',
                 'role'            => User::ROLE_LEARNING_COORDINATOR,
+                'roles'           => [User::ROLE_LEARNING_COORDINATOR, User::ROLE_ADMIN_COORDINATOR, User::ROLE_EMPLOYEE],
                 'position'        => 'Senior Manager of Competency & Learning Design',
                 'organization_id' => $unitCLD?->id,
             ],
             [
                 'name'            => 'Andi Prasetyo',
                 'nik'             => '19920002',
-                'email'           => 'andi.prasetyo@sig.co.id',
+                'email'           => 'andi.prasetyo@sig.id',
                 'role'            => User::ROLE_LEARNING_ADMINISTRATOR,
                 'position'        => 'Manager of Learning Development',
                 'organization_id' => $unitCLD?->id,
@@ -105,6 +106,15 @@ class UserSeeder extends Seeder
                 'position'        => 'Officer of Learning Administration',
                 'organization_id' => $unitCLD?->id,
             ]),
+            // Admin Coordinator for testing
+            [
+                'name'            => 'Nurul Mustofa (AC)',
+                'nik'             => '19920123',
+                'email'           => 'nurul.mustofa123@sig.id',
+                'role'            => User::ROLE_ADMIN_COORDINATOR,
+                'position'        => 'Admin Coordinator of Learning & Development',
+                'organization_id' => $unitCLD?->id,
+            ],
         ];
 
         foreach ($users as $user) {

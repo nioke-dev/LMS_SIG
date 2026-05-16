@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Merging Console | SIG Academy Admin</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "error": "#ba1a1a",
+                        "on-secondary": "#ffffff",
+                        "on-background": "#0f172a",
+                        "error-container": "#ffdad6",
+                        "primary-fixed": "#ffdad6",
+                        "surface-container-low": "#f1eeee",
+                        "secondary": "#211112",
+                        "primary-fixed-dim": "#ffb4ac",
+                        "primary-container": "#e21d24",
+                        "on-tertiary-fixed-variant": "#3f4759",
+                        "on-primary-container": "#ffffff",
+                        "secondary-fixed": "#e2e2e2",
+                        "surface-dim": "#e5e2e2",
+                        "on-error": "#ffffff",
+                        "surface-tint": "#e21d24",
+                        "secondary-container": "#331d1e",
+                        "secondary-fixed-dim": "#c6c6c6",
+                        "on-secondary-container": "#f8f6f6",
+                        "on-surface": "#0f172a",
+                        "on-surface-variant": "#475569",
+                        "surface-container-high": "#e5e2e2",
+                        "outline": "#e21d241a",
+                        "tertiary-container": "#1e293b",
+                        "surface-container-highest": "#dfdbdb",
+                        "inverse-primary": "#ffb4ac",
+                        "on-tertiary": "#ffffff",
+                        "on-tertiary-fixed": "#101a2d",
+                        "tertiary-fixed": "#dbe2f9",
+                        "on-secondary-fixed-variant": "#484646",
+                        "tertiary": "#0f172a",
+                        "on-primary-fixed-variant": "#93000a",
+                        "surface-container": "#ebe8e8",
+                        "on-primary-fixed": "#410002",
+                        "inverse-surface": "#1e293b",
+                        "on-error-container": "#410002",
+                        "inverse-on-surface": "#f8fafc",
+                        "surface-container-lowest": "#ffffff",
+                        "background": "#f8f6f6",
+                        "surface-bright": "#ffffff",
+                        "tertiary-fixed-dim": "#bfc6dc",
+                        "outline-variant": "#e21d2433",
+                        "on-secondary-fixed": "#1b1b1b",
+                        "surface": "#f8f6f6",
+                        "primary": "#e21d24",
+                        "on-tertiary-container": "#f1f5f9",
+                        "on-primary": "#ffffff",
+                        "surface-variant": "#f1eeee"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "fontFamily": {
+                        "headline": ["Inter"],
+                        "body": ["Inter"],
+                        "label": ["Inter"]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+        .custom-scrollbar::-webkit-scrollbar { width: 4px; height: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #e21d2433; border-radius: 10px; }
+    </style>
+</head>
+<body class="bg-background text-on-surface antialiased overflow-hidden flex h-screen">
+<!-- SideNavBar Shell -->
+<aside class="h-screen w-72 fixed left-0 top-0 bg-white border-r border-zinc-100 flex flex-col p-6 z-[60]">
+<div class="mb-10 flex px-4 items-center justify-center">
+<img alt="SIG Logo" class="h-10 w-auto" src="https://lh3.googleusercontent.com/aida/ADBb0uj1JXVlsg1t6yVnOs2MVtVa-aMNi0OqcZh3X2xVGzplzahC4wDHeFIoZxbz8A-k3QTUSHFit8ufGH9-mhn3FFmuipBQD5cxih3J4leQznvg_dG_suABt0jt92OVto2C6HR4oR2u78jxtSAt-SJlGVIK1x2iu6LcNhDHpG302OPMDk83GuXQ7JNuQIBdUQqoEE5wU3M0cOQrMhpwnIyugCWQp0dYm6BdpdlLw9wovg2QTUJqOyWiK9MhSgDhnuRbFFe9V8i86CaCUDw"/>
+</div>
+<nav class="flex-1 space-y-1">
+<a class="flex items-center gap-4 px-4 py-3 bg-red-50 text-primary font-bold rounded-xl transition-all" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">merge_type</span>
+<span class="text-[15px]">Merging Console</span>
+</a>
+<a class="flex items-center gap-4 px-4 py-3 text-zinc-500 hover:text-primary transition-all group" href="#">
+<span class="material-symbols-outlined text-zinc-400 group-hover:text-primary">architecture</span>
+<span class="font-semibold text-[15px]">Manajemen Blueprint</span>
+</a>
+<a class="flex items-center gap-4 px-4 py-3 text-zinc-500 hover:text-primary transition-all group" href="#">
+<span class="material-symbols-outlined text-zinc-400 group-hover:text-primary">fact_check</span>
+<span class="font-semibold text-[15px]">Persetujuan Kategori</span>
+</a>
+<a class="flex items-center gap-4 px-4 py-3 text-zinc-500 hover:text-primary transition-all group" href="#">
+<span class="material-symbols-outlined text-zinc-400 group-hover:text-primary">groups</span>
+<span class="font-semibold text-[15px]">Direktori SME</span>
+</a>
+</nav>
+<div class="pt-6 border-t border-zinc-100 space-y-1">
+<a class="flex items-center gap-4 px-4 py-3 text-zinc-500 hover:text-primary transition-all group" href="#">
+<span class="material-symbols-outlined text-zinc-400 group-hover:text-primary">help_outline</span>
+<span class="font-semibold text-[15px]">Help Center</span>
+</a>
+</div>
+</aside>
+<div class="flex-1 flex flex-col pl-72">
+<!-- TopNavBar Shell -->
+<header class="fixed top-0 right-0 w-[calc(100%-18rem)] z-50 bg-white border-b border-zinc-100 flex justify-between items-center px-10 h-20">
+<div class="flex items-center gap-4"></div>
+<div class="flex items-center gap-6">
+<button class="border border-red-500 text-red-500 px-6 py-2 rounded-xl font-bold text-sm hover:bg-red-50 transition-all">
+                    Ubah Peran
+                </button>
+<div class="relative cursor-pointer">
+<span class="material-symbols-outlined text-zinc-500 text-2xl">notifications</span>
+<span class="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full border-2 border-white"></span>
+</div>
+<div class="flex items-center gap-4 border-l border-zinc-100 pl-6">
+<div class="text-right">
+<p class="text-sm font-bold text-zinc-900 leading-tight">Nurul Mustofa</p>
+<p class="text-[11px] text-zinc-400 font-medium">Admin Coordinator</p>
+</div>
+<img alt="SIG Academy Admin" class="w-11 h-11 rounded-full object-cover bg-zinc-100" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA-NBjcOErr461sgKXeK1tgwqapmaSUYB6Vlw9hxsm_ca33-3AHZOXWcD7bL0_iN0hiGScawh2WXCmTwuxDwBN2-Ag_wxlIiN33kxm-K_WBKMOsQV_ZGftaI3NIOc3fIAP7HvMN8AOHXbG1pVYAOvzln_5buS8CTUNbUA5zoAAQI2CseLa9iTqpJ2ftJhSU-6WYqGy14yhVY3OKAsu31AYAycU4lPHe9UQKoMlLdCgQHE2nB85_2TNs3QstZJU5Y98ymeN30BBh4Op8"/>
+</div>
+</div>
+</header>
+<!-- Main Content -->
+<main class="flex-1 overflow-y-auto bg-surface p-10 mt-20 custom-scrollbar pb-32">
+<!-- Corporate Hierarchy Breadcrumb -->
+<div class="flex items-center gap-2 mb-4">
+<span class="text-[11px] font-black text-primary tracking-wider uppercase">SIG HOLDING</span>
+<span class="material-symbols-outlined text-sm text-zinc-300">chevron_right</span>
+<span class="text-[11px] font-bold text-zinc-500 uppercase">HUMAN CAPITAL</span>
+<span class="material-symbols-outlined text-sm text-zinc-300">chevron_right</span>
+<span class="text-[11px] font-medium text-zinc-400 uppercase">CENTER OF LEARNING &amp; DEVELOPMENT</span>
+</div>
+<!-- Header Section -->
+<div class="mb-10">
+<h2 class="text-[48px] font-black text-on-surface leading-none tracking-tighter">Merging Hub</h2>
+<p class="text-on-surface-variant font-medium mt-2 max-w-2xl">Pusat konsolidasi usulan TNA. Lakukan penggabungan usulan yang serupa untuk optimasi sumber daya dan kurikulum yang efisien.</p>
+</div>
+<!-- KPI Row -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+<div class="bg-white p-6 rounded-3xl shadow-sm border border-red-600/5 relative overflow-hidden group">
+<div class="absolute right-[-20px] bottom-[-20px] opacity-[0.03] group-hover:scale-110 transition-transform duration-700">
+<span class="material-symbols-outlined text-[120px]">inventory_2</span>
+</div>
+<p class="text-[12px] font-bold tracking-widest text-zinc-400 uppercase mb-4">TNA Backlog</p>
+<div class="flex items-baseline gap-2">
+<span class="text-4xl font-black text-on-surface">1,248</span>
+<span class="text-xs font-bold text-red-600">Proposals</span>
+</div>
+<p class="text-xs text-zinc-500 mt-2 italic">Total LC proposals unprocessed</p>
+</div>
+<div class="bg-white p-6 rounded-3xl shadow-sm border border-red-600/5 relative overflow-hidden group">
+<div class="absolute right-[-20px] bottom-[-20px] opacity-[0.03] group-hover:scale-110 transition-transform duration-700">
+<span class="material-symbols-outlined text-[120px]">architecture</span>
+</div>
+<p class="text-[12px] font-bold tracking-widest text-zinc-400 uppercase mb-4">Blueprint in Progress</p>
+<div class="flex items-baseline gap-2">
+<span class="text-4xl font-black text-on-surface">42</span>
+<span class="text-xs font-bold text-red-600">Courses</span>
+</div>
+<p class="text-xs text-zinc-500 mt-2 italic">Currently being built by SMEs</p>
+</div>
+<div class="bg-white p-6 rounded-3xl shadow-sm border border-red-600/5 relative overflow-hidden group">
+<div class="absolute right-[-20px] bottom-[-20px] opacity-[0.03] group-hover:scale-110 transition-transform duration-700">
+<span class="material-symbols-outlined text-[120px]">psychology</span>
+</div>
+<p class="text-[12px] font-bold tracking-widest text-zinc-400 uppercase mb-4">SME Availability</p>
+<div class="flex items-baseline gap-2">
+<span class="text-4xl font-black text-on-surface">88%</span>
+<span class="text-xs font-bold text-emerald-600">Ready</span>
+</div>
+<p class="text-xs text-zinc-500 mt-2 italic">Pakar ready for assignment</p>
+</div>
+</div>
+<!-- Advanced Filtering -->
+<div class="bg-white p-4 rounded-2xl shadow-sm border border-red-600/5 mb-6 flex flex-wrap items-center gap-4">
+<div class="flex-1 min-w-[300px] relative">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400 text-lg">search</span>
+<input class="w-full pl-10 pr-4 py-2.5 bg-zinc-50 border-none rounded-xl text-sm focus:ring-2 focus:ring-red-600/20" placeholder="Cari ID, Judul, Nama LC, atau Unit..." type="text"/>
+</div>
+<div class="flex flex-wrap gap-2">
+<select class="bg-zinc-50 border-none rounded-xl text-xs font-bold text-zinc-600 px-4 py-2.5 focus:ring-2 focus:ring-red-600/20">
+<option>Perusahaan</option>
+<option>SIG</option>
+<option>Semen Padang</option>
+<option>Semen Tonasa</option>
+</select>
+<select class="bg-zinc-50 border-none rounded-xl text-xs font-bold text-zinc-600 px-4 py-2.5 focus:ring-2 focus:ring-red-600/20">
+<option>Departemen</option>
+<option>Human Capital</option>
+<option>Ops</option>
+<option>Maintenance</option>
+</select>
+<select class="bg-zinc-50 border-none rounded-xl text-xs font-bold text-zinc-600 px-4 py-2.5 focus:ring-2 focus:ring-red-600/20">
+<option>Unit</option>
+<option>Pabrik Tuban</option>
+<option>Unit Klinker</option>
+</select>
+<select class="bg-zinc-50 border-none rounded-xl text-xs font-bold text-zinc-600 px-4 py-2.5 focus:ring-2 focus:ring-red-600/20">
+<option>Kategori Pelatihan</option>
+<option>Legal</option>
+<option>Audit</option>
+<option>Business Development</option>
+</select>
+<select class="bg-zinc-50 border-none rounded-xl text-xs font-bold text-zinc-600 px-4 py-2.5 focus:ring-2 focus:ring-red-600/20">
+<option>Pengusul</option>
+<option>Ahmad Suherman</option>
+<option>Budi Darmawan</option>
+<option>Siti Aminah</option>
+</select>
+<select class="bg-zinc-50 border-none rounded-xl text-xs font-bold text-zinc-600 px-4 py-2.5 focus:ring-2 focus:ring-red-600/20">
+<option>Urgensi</option>
+<option>High</option>
+<option>Medium</option>
+<option>Low</option>
+</select>
+<select class="bg-zinc-50 border-none rounded-xl text-xs font-bold text-zinc-600 px-4 py-2.5 focus:ring-2 focus:ring-red-600/20">
+<option>Status</option>
+<option>Pending Review</option>
+<option>In Progress</option>
+<option>Completed</option>
+</select>
+</div>
+</div>
+<!-- High-Density Table with overflow container -->
+<div class="bg-white rounded-3xl shadow-sm border border-red-600/5 overflow-hidden">
+<div class="overflow-x-auto custom-scrollbar">
+<table class="w-full text-left border-collapse min-w-[1200px]">
+<thead>
+<tr class="bg-zinc-50/50 border-b border-zinc-100">
+<th class="px-6 py-4 w-12"><input class="rounded border-zinc-300 text-red-600 focus:ring-red-600/20" type="checkbox"/></th>
+<th class="px-4 py-4 w-32 text-[10px] font-black uppercase tracking-widest text-zinc-400">ID Usulan</th>
+<th class="px-4 py-4 min-w-[320px] text-[10px] font-black uppercase tracking-widest text-zinc-400">Judul TNA</th>
+<th class="px-4 py-4 w-[240px] text-[10px] font-black uppercase tracking-widest text-zinc-400">Kategori Pelatihan</th>
+<th class="px-4 py-4 w-[220px] text-[10px] font-black uppercase tracking-widest text-zinc-400">Pengusul</th>
+<th class="px-4 py-4 w-20 text-[10px] font-black uppercase tracking-widest text-zinc-400 text-center">Peserta</th>
+<th class="px-4 py-4 w-[100px] text-[10px] font-black uppercase tracking-widest text-zinc-400">Urgensi</th>
+<th class="px-4 py-4 w-[140px] text-[10px] font-black uppercase tracking-widest text-zinc-400">Status</th>
+<th class="px-4 py-4 w-[60px] text-[10px] font-black uppercase tracking-widest text-zinc-400 text-center">Aksi</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-zinc-50">
+<!-- Row 1 -->
+<tr class="hover:bg-red-50/10 transition-colors bg-red-50/30">
+<td class="px-6 py-3"><input checked="" class="rounded border-red-300 text-red-600 focus:ring-red-600/20" type="checkbox"/></td>
+<td class="px-4 py-3 font-mono text-[11px] font-bold text-red-600">TNA-2024-089</td>
+<td class="px-4 py-3">
+<p class="text-sm font-bold text-on-surface">Predictive Maintenance for Kiln System</p>
+</td>
+<td class="px-4 py-3">
+<div class="flex items-center gap-1.5">
+<span class="w-2 h-2 rounded-full bg-red-500"></span>
+<span class="text-[12px] font-medium text-red-700">Maintenance Management</span>
+</div>
+</td>
+<td class="px-4 py-3">
+<p class="text-xs font-bold text-on-surface">Ahmad Suherman</p>
+<p class="text-[10px] text-zinc-500 uppercase tracking-tighter truncate">Semen Padang | Ops</p>
+</td>
+<td class="px-4 py-3 text-center">
+<span class="text-sm font-black">24</span>
+</td>
+<td class="px-4 py-3">
+<span class="text-[10px] font-black text-red-700 uppercase">High</span>
+</td>
+<td class="px-4 py-3">
+<div class="flex items-center gap-2">
+<span class="w-1.5 h-1.5 rounded-full bg-zinc-400"></span>
+<span class="text-[11px] font-bold text-zinc-600">Pending Review</span>
+</div>
+</td>
+<td class="px-4 py-3 text-center">
+<button class="w-8 h-8 rounded-lg hover:bg-zinc-100 text-zinc-400 hover:text-primary transition-all flex items-center justify-center mx-auto">
+<span class="material-symbols-outlined text-xl">visibility</span>
+</button>
+</td>
+</tr>
+<!-- Row 2 -->
+<tr class="hover:bg-red-50/10 transition-colors bg-red-50/30">
+<td class="px-6 py-3"><input checked="" class="rounded border-red-300 text-red-600 focus:ring-red-600/20" type="checkbox"/></td>
+<td class="px-4 py-3 font-mono text-[11px] font-bold text-red-600">TNA-2024-112</td>
+<td class="px-4 py-3">
+<p class="text-sm font-bold text-on-surface">Vibration Analysis Level 2 Mastery Workshop</p>
+</td>
+<td class="px-4 py-3">
+<div class="flex items-center gap-1.5">
+<span class="w-2 h-2 rounded-full bg-orange-500"></span>
+<span class="text-[12px] font-medium text-orange-700">Design &amp; Engineering</span>
+</div>
+</td>
+<td class="px-4 py-3">
+<p class="text-xs font-bold text-on-surface">Budi Darmawan</p>
+<p class="text-[10px] text-zinc-500 uppercase tracking-tighter truncate">Semen Indonesia | Maint</p>
+</td>
+<td class="px-4 py-3 text-center">
+<span class="text-sm font-black">15</span>
+</td>
+<td class="px-4 py-3">
+<span class="text-[10px] font-black text-red-700 uppercase">High</span>
+</td>
+<td class="px-4 py-3">
+<div class="flex items-center gap-2">
+<span class="w-1.5 h-1.5 rounded-full bg-zinc-400"></span>
+<span class="text-[11px] font-bold text-zinc-600">Pending Review</span>
+</div>
+</td>
+<td class="px-4 py-3 text-center">
+<button class="w-8 h-8 rounded-lg hover:bg-zinc-100 text-zinc-400 hover:text-primary transition-all flex items-center justify-center mx-auto">
+<span class="material-symbols-outlined text-xl">visibility</span>
+</button>
+</td>
+</tr>
+<!-- Row 3 -->
+<tr class="hover:bg-red-50/10 transition-colors bg-red-50/30">
+<td class="px-6 py-3"><input checked="" class="rounded border-red-300 text-red-600 focus:ring-red-600/20" type="checkbox"/></td>
+<td class="px-4 py-3 font-mono text-[11px] font-bold text-red-600">TNA-2024-145</td>
+<td class="px-4 py-3">
+<p class="text-sm font-bold text-on-surface">Condition Monitoring Mastery for Plant Managers</p>
+</td>
+<td class="px-4 py-3">
+<div class="flex items-center gap-1.5">
+<span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+<span class="text-[12px] font-medium text-emerald-700">Clinker Production</span>
+</div>
+</td>
+<td class="px-4 py-3">
+<p class="text-xs font-bold text-on-surface">Siti Aminah</p>
+<p class="text-[10px] text-zinc-500 uppercase tracking-tighter truncate">Semen Tonasa | Prod</p>
+</td>
+<td class="px-4 py-3 text-center">
+<span class="text-sm font-black">32</span>
+</td>
+<td class="px-4 py-3">
+<span class="text-[10px] font-black text-zinc-600 uppercase">Medium</span>
+</td>
+<td class="px-4 py-3">
+<div class="flex items-center gap-2">
+<span class="w-1.5 h-1.5 rounded-full bg-zinc-400"></span>
+<span class="text-[11px] font-bold text-zinc-600">Pending Review</span>
+</div>
+</td>
+<td class="px-4 py-3 text-center">
+<button class="w-8 h-8 rounded-lg hover:bg-zinc-100 text-zinc-400 hover:text-primary transition-all flex items-center justify-center mx-auto">
+<span class="material-symbols-outlined text-xl">visibility</span>
+</button>
+</td>
+</tr>
+<!-- Row 4 -->
+<tr class="hover:bg-red-50/10 transition-colors bg-red-50/30">
+<td class="px-6 py-3"><input checked="" class="rounded border-red-300 text-red-600 focus:ring-red-600/20" type="checkbox"/></td>
+<td class="px-4 py-3 font-mono text-[11px] font-bold text-red-600">TNA-2024-201</td>
+<td class="px-4 py-3">
+<p class="text-sm font-bold text-on-surface">Advanced Heat Balance Analysis</p>
+</td>
+<td class="px-4 py-3">
+<div class="flex items-center gap-1.5">
+<span class="w-2 h-2 rounded-full bg-blue-500"></span>
+<span class="text-[12px] font-medium text-blue-700">Research &amp; Development</span>
+</div>
+</td>
+<td class="px-4 py-3">
+<p class="text-xs font-bold text-on-surface">Andi Wijaya</p>
+<p class="text-[10px] text-zinc-500 uppercase tracking-tighter truncate">Semen Padang | Eng</p>
+</td>
+<td class="px-4 py-3 text-center">
+<span class="text-sm font-black">12</span>
+</td>
+<td class="px-4 py-3">
+<span class="text-[10px] font-black text-blue-700 uppercase">Low</span>
+</td>
+<td class="px-4 py-3">
+<div class="flex items-center gap-2">
+<span class="w-1.5 h-1.5 rounded-full bg-zinc-400"></span>
+<span class="text-[11px] font-bold text-zinc-600">Pending Review</span>
+</div>
+</td>
+<td class="px-4 py-3 text-center">
+<button class="w-8 h-8 rounded-lg hover:bg-zinc-100 text-zinc-400 hover:text-primary transition-all flex items-center justify-center mx-auto">
+<span class="material-symbols-outlined text-xl">visibility</span>
+</button>
+</td>
+</tr>
+<!-- Row 5 -->
+<tr class="hover:bg-red-50/10 transition-colors">
+<td class="px-6 py-3"><input class="rounded border-zinc-300 text-red-600 focus:ring-red-600/20" type="checkbox"/></td>
+<td class="px-4 py-3 font-mono text-[11px] font-bold text-zinc-400">TNA-2024-210</td>
+<td class="px-4 py-3">
+<p class="text-sm font-bold text-on-surface">Effective Communication for Supervisors</p>
+</td>
+<td class="px-4 py-3">
+<div class="flex items-center gap-1.5">
+<span class="w-2 h-2 rounded-full bg-indigo-500"></span>
+<span class="text-[12px] font-medium text-indigo-700">Human Capital</span>
+</div>
+</td>
+<td class="px-4 py-3">
+<p class="text-xs font-bold text-on-surface">Indah Lestari</p>
+<p class="text-[10px] text-zinc-500 uppercase tracking-tighter truncate">SIG Holding | HC</p>
+</td>
+<td class="px-4 py-3 text-center">
+<span class="text-sm font-black">45</span>
+</td>
+<td class="px-4 py-3">
+<span class="text-[10px] font-black text-zinc-600 uppercase">Medium</span>
+</td>
+<td class="px-4 py-3">
+<div class="flex items-center gap-2">
+<span class="w-1.5 h-1.5 rounded-full bg-zinc-400"></span>
+<span class="text-[11px] font-bold text-zinc-600">Pending Review</span>
+</div>
+</td>
+<td class="px-4 py-3 text-center">
+<button class="w-8 h-8 rounded-lg hover:bg-zinc-100 text-zinc-400 hover:text-primary transition-all flex items-center justify-center mx-auto">
+<span class="material-symbols-outlined text-xl">visibility</span>
+</button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="px-6 py-4 bg-zinc-50/50 flex justify-between items-center text-[11px] font-bold text-zinc-500 border-t border-zinc-100">
+<p>Showing 5 of 1,248 Proposals</p>
+<div class="flex gap-1">
+<button class="w-8 h-8 rounded-lg bg-white border border-red-600/10 flex items-center justify-center hover:bg-red-600 hover:text-white transition-all"><span class="material-symbols-outlined text-sm">chevron_left</span></button>
+<button class="w-8 h-8 rounded-lg bg-red-600 text-white flex items-center justify-center">1</button>
+<button class="w-8 h-8 rounded-lg bg-white border border-red-600/10 flex items-center justify-center hover:bg-red-600 hover:text-white transition-all">2</button>
+<button class="w-8 h-8 rounded-lg bg-white border border-red-600/10 flex items-center justify-center hover:bg-red-600 hover:text-white transition-all"><span class="material-symbols-outlined text-sm">chevron_right</span></button>
+</div>
+</div>
+</div>
+</main>
+<!-- Floating Action Bar -->
+<div class="fixed bottom-8 left-[calc(18rem+2rem)] right-8 z-50 pointer-events-none flex justify-center">
+<div class="bg-red-600 text-white px-8 py-4 rounded-2xl shadow-2xl shadow-red-600/40 flex items-center gap-12 pointer-events-auto transform translate-y-0 transition-transform duration-300">
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-2xl" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+<p class="text-sm font-black leading-none">4 Usulan Terpilih | Akumulasi 83 Calon Peserta</p>
+</div>
+<div class="flex items-center gap-6">
+<button class="text-sm font-bold hover:underline">Hapus Pilihan</button>
+<button class="bg-white text-red-600 px-6 py-2.5 rounded-xl text-sm font-black flex items-center gap-2 hover:scale-105 active:scale-95 transition-all">
+<span class="material-symbols-outlined text-lg">auto_awesome</span>
+                        Merge into 1 Blueprint
+                    </button>
+</div>
+</div>
+</div>
+</div>
+</body></html>

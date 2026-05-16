@@ -13,11 +13,17 @@ class TnaSubmissionDTO
         public string $urgency,
         public string $status,
         public string $date,
+        public string $raw_date,
         public string $description,
         public int $participants,
         public array $documents = [],
-        public ?string $admin_feedback = null,
-        public array $participants_list = []
+        public array $participants_list = [],
+        public ?string $feedback = null,
+        public ?string $feedback_by = null,
+        public ?string $proposer_name = null,
+        public ?string $company_name = null,
+        public ?int $company_id = null,
+        public ?int $organization_id = null,
     ) {}
 
     /**
@@ -32,10 +38,15 @@ class TnaSubmissionDTO
             urgency: $submission->urgency,
             status: $submission->status,
             date: $submission->submission_date->format('d M Y'),
-            description: $submission->description,
-            participants: $submission->participants,
-            documents: $submission->documents ?? [],
-            admin_feedback: $submission->feedback,
+            raw_date: $submission->submission_date->format('Y-m-d'),
+            description: $submission->description ?? '',
+            participants: $submission->participants ?? 0,
+            documents: collect($submission->documents ?? [])->map(function($doc) {
+                if (isset($doc['path'])) {
+                    $doc['url'] = asset('storage/' . $doc['path']);
+                }
+                return $doc;
+            })->toArray(),
             participants_list: collect($submission->participants_list ?? [])->map(function($item) {
                 // Handle Relational ID (New Format)
                 if (is_numeric($item)) {
@@ -59,7 +70,13 @@ class TnaSubmissionDTO
                 }
 
                 return $item;
-            })->toArray()
+            })->toArray(),
+            feedback: $submission->feedback,
+            feedback_by: $submission->feedback_by,
+            proposer_name: $submission->user->name ?? 'System',
+            company_name: $submission->user ? ($submission->user->getOrganizationPath()->first()->name ?? '-') : '-',
+            company_id: $submission->user ? ($submission->user->getOrganizationPath()->first()->id ?? null) : null,
+            organization_id: $submission->user ? $submission->user->organization_id : null,
         );
     }
 
@@ -72,11 +89,17 @@ class TnaSubmissionDTO
             'urgency' => $this->urgency,
             'status' => $this->status,
             'date' => $this->date,
+            'raw_date' => $this->raw_date,
             'description' => $this->description,
             'participants' => $this->participants,
-            'documents' => $this->documents,
-            'admin_feedback' => $this->admin_feedback,
             'participants_list' => $this->participants_list,
+            'documents' => $this->documents,
+            'feedback' => $this->feedback,
+            'feedback_by' => $this->feedback_by,
+            'proposer_name' => $this->proposer_name,
+            'company_name' => $this->company_name,
+            'company_id' => $this->company_id,
+            'organization_id' => $this->organization_id,
         ];
     }
 }

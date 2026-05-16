@@ -16,6 +16,7 @@
     <meta charset="utf-8" />
     <meta content="width=device-width, initial-scale=1.0" name="viewport" />
     <title>SIG Academy | @yield('title', 'Back-Office')</title>
+    <meta name="csrf-token" content="{{ csrf_token() }}">
 
     {{-- Tailwind CSS --}}
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
@@ -23,8 +24,12 @@
     {{-- AlpineJS --}}
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 
-    {{-- Axios --}}
+    {{-- Axios Config --}}
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script>
+        axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
+        axios.defaults.headers.common['X-CSRF-TOKEN'] = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+    </script>
 
     {{-- SweetAlert2 --}}
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -168,6 +173,13 @@
         .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .modal-overlay { backdrop-filter: blur(4px); }
+        
+        /* Premium Animations */
+        @keyframes sig-pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(0.95); }
+        }
+        .animate-sig-pulse { animation: sig-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
     </style>
 
     {{-- Local Tippy.js (Offline Ready) --}}
@@ -176,15 +188,101 @@
     <link rel="stylesheet" href="{{ asset('vendor/tippy/custom-tippy.css') }}">
     <script src="{{ asset('vendor/tippy/popper.min.js') }}"></script>
     <script src="{{ asset('vendor/tippy/tippy-bundle.umd.js') }}"></script>
-    <script>
-        console.log('Tippy loaded:', typeof tippy !== 'undefined' ? 'YES' : 'NO');
-    </script>
 
     @stack('styles')
-</head><body class="bg-background text-on-surface flex min-h-screen relative" x-data="{ sidebarOpen: true, showLogoutModal: false, roleModalOpen: false, emailModalOpen: false }" :class="showLogoutModal || roleModalOpen || emailModalOpen ? 'overflow-hidden' : ''">
+</head>
+<body class="bg-background text-on-surface flex min-h-screen relative" 
+      x-data="{ 
+        sidebarOpen: true, 
+        showLogoutModal: false, 
+        roleModalOpen: false, 
+        emailModalOpen: false,
+        roleSwitchingState: null, {{-- null, 'loading', 'success' --}}
+        newRoleTitle: '',
+        activeRole: '{{ session('active_role', auth()->user()->role) }}',
+        switchRole(role) {
+            if (role === this.activeRole) return;
+            
+            this.roleModalOpen = false;
+            this.roleSwitchingState = 'loading';
+            
+            axios.post('{{ route('auth.select-role.submit') }}', {
+                role: role,
+                _token: '{{ csrf_token() }}'
+            })
+            .then(res => {
+                if (res.data.success) {
+                    setTimeout(() => {
+                        this.newRoleTitle = role.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+                        this.roleSwitchingState = 'success';
+                        
+                        setTimeout(() => {
+                            window.location.href = res.data.redirect;
+                        }, 2000);
+                    }, 1500);
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                this.roleSwitchingState = null;
+                Alert.error('Gagal!', 'Terjadi kesalahan saat berpindah peran.');
+            });
+        }
+      }" 
+      :class="showLogoutModal || roleModalOpen || emailModalOpen || roleSwitchingState ? 'overflow-hidden' : ''">
 
     {{-- Global Overlays --}}
     <div class="fixed inset-0 z-[100] pointer-events-none">
+        
+        {{-- ROLE SWITCHER OVERLAY (PREMIUM) --}}
+        <div x-show="roleSwitchingState" 
+             style="display: none;"
+             class="absolute inset-0 bg-white/40 backdrop-blur-3xl pointer-events-auto flex items-center justify-center p-6 z-[200]">
+            
+            {{-- Loading State --}}
+            <div x-show="roleSwitchingState === 'loading'"
+                 x-transition:enter="transition ease-out duration-500"
+                 x-transition:enter-start="opacity-0 scale-90"
+                 x-transition:enter-end="opacity-100 scale-100"
+                 class="flex flex-col items-center text-center">
+                <div class="relative mb-10">
+                    <div class="w-24 h-24 bg-white/80 backdrop-blur-md rounded-full flex items-center justify-center animate-sig-pulse shadow-xl border border-white">
+                        <img src="https://i.ibb.co.com/zTjcL4DX/logo-sig-latar-putih.png" class="w-14 h-auto" alt="SIG">
+                    </div>
+                    <div class="absolute inset-0 border-4 border-primary/10 border-t-primary rounded-full animate-spin"></div>
+                </div>
+                <h3 class="text-2xl font-black text-on-surface tracking-tight mb-2">Menyiapkan Akses</h3>
+                <div class="flex items-center gap-1.5 justify-center">
+                    <span class="w-1.5 h-1.5 bg-primary rounded-full animate-bounce [animation-delay:-0.3s]"></span>
+                    <span class="w-1.5 h-1.5 bg-primary rounded-full animate-bounce [animation-delay:-0.15s]"></span>
+                    <span class="w-1.5 h-1.5 bg-primary rounded-full animate-bounce"></span>
+                </div>
+                <p class="text-on-surface-variant font-medium mt-6 text-sm max-w-xs leading-relaxed">
+                    Sedang menyelaraskan kredensial dan membangun dashboard untuk peran baru Anda...
+                </p>
+            </div>
+
+            {{-- Success State --}}
+            <div x-show="roleSwitchingState === 'success'"
+                 x-transition:enter="transition cubic-bezier(0.175, 0.885, 0.32, 1.275) duration-700"
+                 x-transition:enter-start="opacity-0 scale-50"
+                 x-transition:enter-end="opacity-100 scale-100"
+                 class="bg-white rounded-[3rem] shadow-[0_40px_100px_rgba(0,0,0,0.15)] border border-zinc-100 p-12 max-w-md w-full text-center">
+                <div class="w-24 h-24 bg-emerald-50 text-emerald-500 rounded-full flex items-center justify-center mx-auto mb-8 shadow-inner">
+                    <span class="material-symbols-outlined text-5xl" style="font-variation-settings: 'wght' 700;">check</span>
+                </div>
+                <h3 class="text-3xl font-black text-on-surface tracking-tighter mb-4">Berhasil Pindah!</h3>
+                <p class="text-zinc-500 font-medium mb-10 leading-relaxed">
+                    Selamat datang di <br/>
+                    <span class="text-on-surface font-black text-xl" x-text="`Dashboard ${newRoleTitle}`"></span>
+                </p>
+                <div class="h-1.5 w-full bg-zinc-50 rounded-full overflow-hidden">
+                    <div class="h-full bg-emerald-500 transition-all duration-[2000ms] ease-linear w-full"></div>
+                </div>
+                <p class="text-[10px] font-black text-zinc-300 uppercase tracking-widest mt-6">Mengarahkan ke Dashboard...</p>
+            </div>
+        </div>
+
         {{-- Logout Confirmation Modal --}}
         <div x-show="showLogoutModal"
              style="display: none;"
@@ -225,7 +323,7 @@
              class="absolute inset-0 bg-zinc-900/40 pointer-events-auto modal-overlay flex items-center justify-center p-6">
             
             <div @click.outside="roleModalOpen = false" 
-                 class="bg-white rounded-[3rem] w-full max-w-4xl overflow-hidden shadow-2xl transition-all"
+                 class="bg-white rounded-[3rem] w-full max-w-5xl overflow-hidden shadow-2xl transition-all"
                  x-transition:enter="transition ease-out duration-300"
                  x-transition:enter-start="opacity-0 scale-95 translate-y-4"
                  x-transition:enter-end="opacity-100 scale-100 translate-y-0"
@@ -243,42 +341,79 @@
                     </button>
                 </div>
 
-                <div class="px-12 pb-8 grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <div class="bg-zinc-50 rounded-[2.5rem] p-8 border border-zinc-100 group hover:border-primary/20 hover:bg-white hover:shadow-xl transition-all">
-                        <div class="w-14 h-14 rounded-2xl bg-white flex items-center justify-center text-red-500 shadow-sm mb-8 group-hover:scale-110 transition-transform">
-                            <span class="material-symbols-outlined text-3xl">person</span>
-                        </div>
-                        <h3 class="text-2xl font-black text-zinc-900 mb-4">Employee</h3>
-                        <p class="text-zinc-500 text-sm leading-relaxed mb-10">Akses sebagai pembelajar untuk melihat materi, tugas, dan progres pelatihan pribadi.</p>
-                        <button class="w-full py-4 bg-white border border-zinc-200 rounded-2xl text-xs font-black uppercase tracking-widest text-red-500 hover:bg-red-50 hover:border-red-200 transition-all">
-                            Gunakan Peran Ini
-                        </button>
-                    </div>
+                <div class="px-12 pb-12 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    @php
+                        $userRoles = Auth::user()->roles ?? [Auth::user()->role];
+                        // Ensure primary role is included
+                        if (!in_array(Auth::user()->role, $userRoles)) {
+                            $userRoles[] = Auth::user()->role;
+                        }
 
-                    <div class="relative bg-white rounded-[2.5rem] p-8 border-2 border-red-500 shadow-xl shadow-red-500/5">
-                        <div class="absolute -top-4 left-1/2 -translate-x-1/2 bg-red-500 text-white px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest">
-                            Sedang Digunakan
-                        </div>
-                        <div class="w-14 h-14 rounded-2xl bg-red-500 flex items-center justify-center text-white shadow-lg shadow-red-500/20 mb-8">
-                            <span class="material-symbols-outlined text-3xl">manage_accounts</span>
-                        </div>
-                        <h3 class="text-2xl font-black text-zinc-900 mb-4">Learning Coordinator</h3>
-                        <p class="text-zinc-500 text-sm leading-relaxed mb-10">Akses kontrol penuh untuk mengelola kurikulum, memantau tim, dan validasi sertifikasi.</p>
-                        <button class="w-full py-4 bg-red-50 rounded-2xl text-xs font-black uppercase tracking-widest text-red-500 cursor-default">
-                            Peran Aktif
-                        </button>
-                    </div>
+                        $roleData = [
+                            'learning_administrator' => [
+                                'title' => 'Learning Admin',
+                                'desc' => 'Kelola seluruh infrastruktur pembelajaran, user, dan konfigurasi sistem SIG Academy.',
+                                'icon' => 'admin_panel_settings'
+                            ],
+                            'learning_coordinator' => [
+                                'title' => 'Learning Coordinator',
+                                'desc' => 'Akses kontrol penuh untuk mengelola kurikulum, memantau tim, dan validasi sertifikasi.',
+                                'icon' => 'manage_accounts'
+                            ],
+                            'admin_coordinator' => [
+                                'title' => 'Admin Coordinator',
+                                'desc' => 'Tinjau usulan TNA, kurasi katalog pelatihan, dan pantau efektivitas budget pelatihan.',
+                                'icon' => 'verified_user'
+                            ],
+                            'sme' => [
+                                'title' => 'Subject Matter Expert',
+                                'desc' => 'Akses sebagai pembuat konten. Kelola modul teknis dan tinjau standar materi industri.',
+                                'icon' => 'edit_note'
+                            ],
+                            'employee' => [
+                                'title' => 'Employee',
+                                'desc' => 'Akses sebagai pembelajar untuk melihat materi, tugas, dan progres pelatihan pribadi.',
+                                'icon' => 'person'
+                            ],
+                            'helpdesk_admin' => [
+                                'title' => 'Helpdesk Admin',
+                                'desc' => 'Kelola tiket bantuan, panduan pengguna, dan berikan dukungan teknis operasional.',
+                                'icon' => 'support_agent'
+                            ]
+                        ];
+                    @endphp
 
-                    <div class="bg-zinc-50 rounded-[2.5rem] p-8 border border-zinc-100 group hover:border-primary/20 hover:bg-white hover:shadow-xl transition-all">
-                        <div class="w-14 h-14 rounded-2xl bg-white flex items-center justify-center text-red-500 shadow-sm mb-8 group-hover:scale-110 transition-transform">
-                            <span class="material-symbols-outlined text-3xl">edit_note</span>
+                    @foreach($userRoles as $role)
+                        @php $data = $roleData[$role] ?? ['title' => ucwords(str_replace('_', ' ', $role)), 'desc' => 'Akses dashboard peran ' . $role, 'icon' => 'settings']; @endphp
+                        <div class="relative rounded-[2.5rem] p-8 border-2 transition-all duration-300 group"
+                             :class="activeRole === '{{ $role }}' ? 'bg-white border-red-500 shadow-xl shadow-red-500/5' : 'bg-zinc-50 border-zinc-100 hover:border-primary/20 hover:bg-white hover:shadow-xl'">
+                            
+                            @if(session('active_role', Auth::user()->role) === $role)
+                                <div class="absolute -top-4 left-1/2 -translate-x-1/2 bg-red-500 text-white px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest">
+                                    Sedang Digunakan
+                                </div>
+                            @endif
+
+                            <div class="w-14 h-14 rounded-2xl flex items-center justify-center shadow-sm mb-8 transition-transform group-hover:scale-110"
+                                 :class="activeRole === '{{ $role }}' ? 'bg-red-500 text-white shadow-red-500/20' : 'bg-white text-red-500'">
+                                <span class="material-symbols-outlined text-3xl">{{ $data['icon'] }}</span>
+                            </div>
+
+                            <h3 class="text-2xl font-black text-zinc-900 mb-4">{{ $data['title'] }}</h3>
+                            <p class="text-zinc-500 text-sm leading-relaxed mb-10">{{ $data['desc'] }}</p>
+                            
+                            @if(session('active_role', Auth::user()->role) === $role)
+                                <button class="w-full py-4 bg-red-50 rounded-2xl text-xs font-black uppercase tracking-widest text-red-500 cursor-default">
+                                    Peran Aktif
+                                </button>
+                            @else
+                                <button @click="switchRole('{{ $role }}')" 
+                                        class="w-full py-4 bg-white border border-zinc-200 rounded-2xl text-xs font-black uppercase tracking-widest text-red-500 hover:bg-red-50 hover:border-red-200 transition-all active:scale-95">
+                                    Gunakan Peran Ini
+                                </button>
+                            @endif
                         </div>
-                        <h3 class="text-2xl font-black text-zinc-900 mb-4">SME</h3>
-                        <p class="text-zinc-500 text-sm leading-relaxed mb-10">Akses sebagai pembuat konten. Kelola modul teknis dan tinjau standar materi industri.</p>
-                        <button class="w-full py-4 bg-white border border-zinc-200 rounded-2xl text-xs font-black uppercase tracking-widest text-red-500 hover:bg-red-50 hover:border-red-200 transition-all">
-                            Gunakan Peran Ini
-                        </button>
-                    </div>
+                    @endforeach
                 </div>
 
                 <div class="px-12 py-8 bg-zinc-50 flex justify-end">
@@ -419,6 +554,25 @@
                 }
             };
         }
+
+        // Bridge Session Flash to Toast
+        document.addEventListener('DOMContentLoaded', () => {
+            @if(session('success'))
+                window.dispatchEvent(new CustomEvent('toast', {
+                    detail: { title: 'Berhasil!', message: '{{ session('success') }}', type: 'success' }
+                }));
+            @endif
+            @if(session('error'))
+                window.dispatchEvent(new CustomEvent('toast', {
+                    detail: { title: 'Gagal!', message: '{{ session('error') }}', type: 'error' }
+                }));
+            @endif
+            @if(session('warning'))
+                window.dispatchEvent(new CustomEvent('toast', {
+                    detail: { title: 'Perhatian!', message: '{{ session('warning') }}', type: 'warning' }
+                }));
+            @endif
+        });
     </script>
 </body>
 </html>

@@ -25,15 +25,18 @@ class TnaService
     /**
      * Store a new TNA submission with transaction and error handling.
      */
-    public function storeSubmission(array $data): TnaSubmissionDTO
+    public function storeSubmission(array $data, array $files = []): TnaSubmissionDTO
     {
         DB::beginTransaction();
 
         try {
             $id = $this->generateTnaId();
+            // Process files from the 'new_documents' key
+            $documents = $this->processDocuments('new_documents');
 
             $submission = TnaSubmission::create([
                 'id' => $id,
+                'user_id' => auth()->id(),
                 'title' => $data['title'],
                 'submission_date' => now(),
                 'category' => $data['category'] ?? '-',
@@ -42,7 +45,7 @@ class TnaService
                 'description' => $data['description'] ?? '',
                 'participants' => $data['participants_count'] ?? 0,
                 'participants_list' => collect($data['participants_list'] ?? [])->pluck('id')->toArray(),
-                'documents' => $data['documents'] ?? [],
+                'documents' => $documents,
             ]);
 
             DB::commit();
@@ -58,12 +61,24 @@ class TnaService
     /**
      * Update an existing TNA submission.
      */
-    public function updateSubmission(string $id, array $data): TnaSubmissionDTO
+    public function updateSubmission(string $id, array $data, array $files = []): TnaSubmissionDTO
     {
         DB::beginTransaction();
 
         try {
             $submission = TnaSubmission::findOrFail($id);
+            
+            // Handle existing documents (metadata from frontend)
+            $existingDocs = collect($data['documents'] ?? [])
+                ->filter(fn($doc) => is_array($doc) && isset($doc['path']))
+                ->values() // Reset keys to ensure clean merge
+                ->toArray();
+            
+            // Process new files from the 'new_documents' key
+            $newDocs = $this->processDocuments('new_documents');
+            
+            // Merge: Existing metadata + New processed file metadata
+            $allDocs = array_merge($existingDocs, $newDocs);
 
             $submission->update([
                 'title' => $data['title'],
@@ -75,7 +90,7 @@ class TnaService
                 'participants_list' => isset($data['participants_list']) 
                     ? collect($data['participants_list'])->pluck('id')->toArray() 
                     : $submission->participants_list,
-                'documents' => $data['documents'] ?? $submission->documents,
+                'documents' => $allDocs,
             ]);
 
             DB::commit();
@@ -86,6 +101,34 @@ class TnaService
             DB::rollBack();
             throw new TnaSubmissionException("Gagal memperbarui usulan TNA: " . $e->getMessage());
         }
+    }
+
+    /**
+     * Process and store uploaded files.
+     */
+    protected function processDocuments(string $key): array
+    {
+        $processed = [];
+        $uploadedFiles = request()->file($key) ?? [];
+        
+        // Ensure it's an array for foreach
+        if (!is_array($uploadedFiles)) {
+            $uploadedFiles = [$uploadedFiles];
+        }
+
+        foreach ($uploadedFiles as $file) {
+            if ($file instanceof \Illuminate\Http\UploadedFile) {
+                $path = $file->store('tna_documents', 'public');
+                $processed[] = [
+                    'name' => $file->getClientOriginalName(),
+                    'path' => $path,
+                    'size' => number_format($file->getSize() / 1024 / 1024, 2) . ' MB',
+                    'type' => $file->getClientMimeType()
+                ];
+            }
+        }
+
+        return $processed;
     }
 
     /**

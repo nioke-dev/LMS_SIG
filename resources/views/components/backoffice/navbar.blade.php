@@ -58,7 +58,7 @@
             <div @click="profileOpen = !profileOpen" class="flex items-center gap-4 border-l border-zinc-100 pl-6 cursor-pointer hover:opacity-80 transition-opacity">
                 <div class="text-right">
                     <p class="text-sm font-bold text-zinc-900 leading-tight">{{ Auth::user()->name }}</p>
-                    <p class="text-[11px] text-zinc-400 font-medium">{{ ucwords(str_replace('_', ' ', Auth::user()->role)) }}</p>
+                    <p class="text-[11px] text-zinc-400 font-medium">{{ ucwords(str_replace('_', ' ', session('active_role', Auth::user()->role))) }}</p>
                 </div>
                 <div class="w-11 h-11 rounded-full bg-primary/10 flex items-center justify-center text-primary font-black text-sm">
                     {{ Auth::user()->initials() }}
@@ -86,7 +86,7 @@
                         <span class="absolute bottom-0 right-0 w-4 h-4 bg-emerald-500 rounded-full border-2 border-white"></span>
                     </div>
                     <p class="text-base font-black text-on-surface">{{ Auth::user()->name }}</p>
-                    <p class="text-[10px] font-bold text-zinc-400 uppercase tracking-[0.15em] mt-1">{{ ucwords(str_replace('_', ' ', Auth::user()->role)) }}</p>
+                    <p class="text-[10px] font-bold text-zinc-400 uppercase tracking-[0.15em] mt-1">{{ ucwords(str_replace('_', ' ', session('active_role', Auth::user()->role))) }}</p>
                 </div>
 
                 {{-- Menu Items --}}

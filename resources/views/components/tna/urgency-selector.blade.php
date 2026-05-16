@@ -1,6 +1,6 @@
 @props(['selected' => 'Medium'])
 
-<div class="relative" x-data="{ 
+<div {{ $attributes }} class="relative" x-data="{ 
     open: false, 
     selected: @js($selected),
     options: [

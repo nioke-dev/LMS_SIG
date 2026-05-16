@@ -16,7 +16,7 @@
     }
 </style>
 
-<div x-data="{ 
+<div {{ $attributes }} x-data="{ 
     participants: @js($participants).map(p => ({ 
         ...p, 
         showCard: false,
@@ -69,7 +69,7 @@
         if (this.selectedIds.includes(nik)) {
             this.selectedIds = this.selectedIds.filter(id => id !== nik);
         } else {
-            this.selectedIds.push(nik);
+            this.selectedIds = [...this.selectedIds, nik];
         }
         this.$dispatch('participants-updated', {
             count: this.selectedIds.length,

@@ -16,6 +16,7 @@ class TnaSubmission extends Model
      */
     protected $fillable = [
         'id',
+        'user_id',
         'title',
         'submission_date',
         'category',
@@ -53,4 +54,9 @@ class TnaSubmission extends Model
      * @var string
      */
     protected $keyType = 'string';
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
 }

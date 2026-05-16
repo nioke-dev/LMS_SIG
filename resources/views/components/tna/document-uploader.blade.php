@@ -1,6 +1,6 @@
 @props(['existingFiles' => []])
 
-<div x-data="{ 
+<div {{ $attributes }} x-data="{ 
     files: @js($existingFiles),
     dragging: false,
     handleFiles(event) {
@@ -18,12 +18,14 @@
             raw: f
         }));
         this.files.push(...newFiles);
+        this.$dispatch('documents-updated', this.files);
         if (event.target.type === 'file') {
             event.target.value = '';
         }
     },
     removeFile(index) {
         this.files.splice(index, 1);
+        this.$dispatch('documents-updated', this.files);
     }
 }" class="mb-8">
     <div class="flex items-center gap-4 mb-4">
@@ -57,10 +59,16 @@
                     <div class="w-10 h-10 rounded-xl bg-zinc-50 flex items-center justify-center text-zinc-400 shrink-0">
                         <span class="material-symbols-outlined">description</span>
                     </div>
-                    <div class="min-w-0">
+                    <div class="min-w-0 flex-1">
                         <p class="text-xs font-bold text-on-surface truncate" x-text="file.name"></p>
                         <p class="text-[10px] font-medium text-zinc-400" x-text="file.size"></p>
                     </div>
+                    <template x-if="file.path">
+                        <a :href="file.url" :download="file.name" 
+                           class="text-zinc-300 hover:text-primary transition-colors px-2">
+                            <span class="material-symbols-outlined text-lg">download</span>
+                        </a>
+                    </template>
                 </div>
                 <button type="button" @click="removeFile(index)" class="text-zinc-300 hover:text-red-500 transition-colors px-2">
                     <span class="material-symbols-outlined text-lg">delete</span>

@@ -13,9 +13,10 @@ class DatabaseSeeder extends Seeder
     {
         $this->call([
             OrganizationSeeder::class,
-            TnaCategorySeeder::class,
             UserSeeder::class,
+            TnaCategorySeeder::class,
             TnaSubmissionSeeder::class,
+            TnaScenarioSeeder::class,
         ]);
     }
 }

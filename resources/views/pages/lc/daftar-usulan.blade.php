@@ -144,11 +144,11 @@
     {{-- Submissions Table --}}
     <div class="bg-white rounded-[2.5rem] border border-zinc-100 shadow-sm overflow-hidden">
         <div class="overflow-x-auto custom-scrollbar">
-            <table class="w-full text-left min-w-[1000px]">
+            <table class="w-full text-left min-w-[1200px]">
                 <thead>
                     <tr class="bg-zinc-50/50 border-b border-zinc-100">
                         {{-- Sortable: ID TNA --}}
-                        <th @click="toggleSort('id')" class="px-8 py-5 text-[10px] font-black text-zinc-400 uppercase tracking-widest cursor-pointer hover:text-zinc-600 transition-colors select-none w-[120px]">
+                        <th @click="toggleSort('id')" class="px-8 py-5 text-[10px] font-black text-zinc-400 uppercase tracking-widest cursor-pointer hover:text-zinc-600 transition-colors select-none min-w-[160px]">
                             <div class="flex items-center gap-1.5">
                                 ID TNA
                                 <span class="material-symbols-outlined text-sm transition-all"
@@ -269,14 +269,11 @@
             </table>
         </div>
     </div>
-    </div>
 
-    {{-- Pagination Controls --}}
-    <div x-show="totalPages > 1" class="flex items-center justify-center gap-2 pt-2">
-        {{-- Prev --}}
+    {{-- Pagination Controls (ALWAYS VISIBLE - CENTERED) --}}
+    <div class="flex items-center justify-center gap-2 pt-4">
         <button @click="prevPage()" :disabled="currentPage === 1"
-                class="w-10 h-10 rounded-xl flex items-center justify-center text-zinc-400 transition-all"
-                :class="currentPage === 1 ? 'opacity-30 cursor-not-allowed' : 'hover:bg-zinc-100 hover:text-zinc-700'">
+                class="w-10 h-10 rounded-xl flex items-center justify-center text-zinc-400 hover:bg-zinc-100 disabled:opacity-20 disabled:hover:bg-transparent transition-all border border-transparent">
             <span class="material-symbols-outlined text-xl">chevron_left</span>
         </button>
 
@@ -309,7 +306,7 @@
              x-transition:leave="transition ease-in duration-200"
              x-transition:leave-start="opacity-100"
              x-transition:leave-end="opacity-0"
-             class="fixed inset-0 z-[999] flex items-center justify-center p-4 bg-zinc-900/60 backdrop-blur-md"
+             class="fixed top-0 left-0 right-0 bottom-0 z-[9999] flex items-center justify-center p-4 bg-zinc-900/60 backdrop-blur-md"
              style="display: none;"
              @click.self="detailModalOpen = false">
             
@@ -356,7 +353,7 @@
                     </div>
 
                     {{-- Admin Feedback (Only if approved/rejected and has feedback) --}}
-                    <template x-if="selectedSub?.admin_feedback">
+                    <template x-if="selectedSub?.feedback">
                         <div class="p-6 rounded-3xl border-2 border-dashed" 
                              :class="selectedSub?.status === 'approved' ? 'bg-green-50/50 border-green-200' : 'bg-red-50/50 border-red-200'">
                             <h3 class="text-[10px] font-black uppercase tracking-widest mb-3 flex items-center gap-2"
@@ -366,7 +363,7 @@
                             </h3>
                             <p class="text-sm font-medium leading-relaxed" 
                                :class="selectedSub?.status === 'approved' ? 'text-green-800' : 'text-red-800'"
-                               x-text="selectedSub?.admin_feedback"></p>
+                                x-text="selectedSub?.feedback"></p>
                         </div>
                     </template>
 
@@ -378,6 +375,33 @@
                         </h3>
                         <div class="p-6 bg-zinc-50 rounded-3xl border border-zinc-100">
                             <p class="text-sm text-zinc-600 leading-relaxed font-medium italic" x-text="selectedSub?.description || 'Tidak ada deskripsi tambahan.'"></p>
+                        </div>
+                    </div>
+
+                    {{-- Documents Section --}}
+                    <div class="space-y-3" x-show="selectedSub?.documents && selectedSub?.documents.length > 0">
+                        <h3 class="text-sm font-black text-zinc-700 uppercase tracking-widest flex items-center gap-2">
+                            <span class="w-1.5 h-1.5 rounded-full bg-primary"></span>
+                            Dokumen Pendukung
+                        </h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                            <template x-for="(doc, index) in selectedSub?.documents" :key="index">
+                                <a :href="doc.url" 
+                                   target="_blank"
+                                   :download="!doc.name.toLowerCase().endsWith('.pdf') ? doc.name : false"
+                                   class="flex items-center gap-3 p-4 bg-white border border-zinc-100 rounded-2xl hover:border-primary/30 hover:bg-zinc-50 transition-all group cursor-pointer">
+                                    <div class="w-10 h-10 rounded-xl bg-zinc-50 text-zinc-400 flex items-center justify-center group-hover:bg-primary/10 group-hover:text-primary transition-all">
+                                        <span class="material-symbols-outlined text-xl" x-text="doc.name.toLowerCase().endsWith('.pdf') ? 'picture_as_pdf' : 'description'"></span>
+                                    </div>
+                                    <div class="flex-1 min-w-0">
+                                        <p class="text-xs font-bold text-zinc-700 truncate" x-text="doc.name"></p>
+                                        <p class="text-[10px] font-medium text-zinc-400 uppercase tracking-widest" 
+                                           x-text="doc.name.toLowerCase().endsWith('.pdf') ? 'Klik untuk preview' : 'Klik untuk download'"></p>
+                                    </div>
+                                    <span class="material-symbols-outlined text-zinc-300 group-hover:text-primary transition-all"
+                                          x-text="doc.name.toLowerCase().endsWith('.pdf') ? 'open_in_new' : 'download'"></span>
+                                </a>
+                            </template>
                         </div>
                     </div>
 
@@ -431,8 +455,12 @@
             </div>
         </div>
     </template>
-</div>
 
+    </template>
+</div>
+@endsection
+
+@section('scripts')
 <script>
     function tnaList() {
         return {
@@ -480,69 +508,73 @@
 
             // ====== Computed: Filtered Items (search + category + status) ======
             get filteredItems() {
+                if (!this.allSubmissions) return [];
+                
                 return this.allSubmissions.filter(sub => {
+                    // Search filter
                     if (this.searchQuery) {
                         const q = this.searchQuery.toLowerCase();
-                        if (!sub.id.toLowerCase().includes(q) && !sub.title.toLowerCase().includes(q)) return false;
+                        const titleMatch = sub.title?.toLowerCase().includes(q);
+                        const idMatch = sub.id?.toLowerCase().includes(q);
+                        if (!titleMatch && !idMatch) return false;
                     }
-                    if (this.filterCategory && sub.category !== this.filterCategory) return false;
-                    if (this.filterStatus && sub.status !== this.filterStatus) return false;
-                    
-                    // Date Range Filter
-                    if (this.filterStartDate && this.filterEndDate) {
-                        // Priority: sub.created_at (raw ISO) > sub.date (formatted)
-                        const rawDate = sub.created_at || sub.date;
-                        if (!rawDate) return false;
 
-                        const subDate = new Date(rawDate);
+                    // Category filter
+                    if (this.filterCategory && sub.category !== this.filterCategory) return false;
+
+                    // Status filter
+                    if (this.filterStatus && sub.status !== this.filterStatus) return false;
+
+                    // Date range filter
+                    if (this.filterStartDate && this.filterEndDate) {
+                        const subDate = new Date(sub.raw_date);
                         const start = new Date(this.filterStartDate);
                         const end = new Date(this.filterEndDate);
                         
-                        // Reset time for accurate date-only comparison
-                        subDate.setHours(0, 0, 0, 0);
-                        start.setHours(0, 0, 0, 0);
-                        end.setHours(0, 0, 0, 0);
-                        
-                        if (subDate.getTime() < start.getTime() || subDate.getTime() > end.getTime()) return false;
+                        // Set all to midnight for date-only comparison
+                        subDate.setHours(0,0,0,0);
+                        start.setHours(0,0,0,0);
+                        end.setHours(0,0,0,0);
+
+                        if (subDate < start || subDate > end) return false;
                     }
                     
                     return true;
-                });
-            },
-
-            // ====== Computed: Sorted Items ======
-            get sortedItems() {
-                const data = [...this.filteredItems];
-                if (!this.sortColumn) return data;
-                return data.sort((a, b) => {
-                    let valA = a[this.sortColumn] ?? '';
-                    let valB = b[this.sortColumn] ?? '';
-                    if (typeof valA === 'string') valA = valA.toLowerCase();
-                    if (typeof valB === 'string') valB = valB.toLowerCase();
+                }).sort((a, b) => {
+                    if (!this.sortColumn) return 0;
+                    
+                    let valA = a[this.sortColumn];
+                    let valB = b[this.sortColumn];
+                    
+                    if (this.sortColumn === 'participants') {
+                        valA = parseInt(valA);
+                        valB = parseInt(valB);
+                    } else {
+                        valA = valA.toString().toLowerCase();
+                        valB = valB.toString().toLowerCase();
+                    }
+                    
                     if (valA < valB) return this.sortDirection === 'asc' ? -1 : 1;
                     if (valA > valB) return this.sortDirection === 'asc' ? 1 : -1;
                     return 0;
                 });
             },
 
-            // ====== Computed: Paginated Items (final render data) ======
+            // ====== Computed: Pagination ======
             get paginatedItems() {
                 const start = (this.currentPage - 1) * this.perPage;
-                return this.sortedItems.slice(start, start + this.perPage);
+                return this.filteredItems.slice(start, start + this.perPage);
             },
 
-            // ====== Computed: Total Pages ======
             get totalPages() {
-                return Math.ceil(this.sortedItems.length / this.perPage) || 1;
+                return Math.ceil(this.filteredItems.length / this.perPage) || 1;
             },
 
-            // ====== Computed: Range Text ======
             get rangeText() {
-                const total = this.sortedItems.length;
-                if (total === 0) return '0 dari 0';
+                if (this.filteredItems.length === 0) return '0';
                 const start = (this.currentPage - 1) * this.perPage + 1;
-                const end = Math.min(this.currentPage * this.perPage, total);
-                return `${start}-${end} dari ${total}`;
+                const end = Math.min(this.currentPage * this.perPage, this.filteredItems.length);
+                return `${start} - ${end} dari ${this.filteredItems.length}`;
             },
 
             // ====== Computed: Page Numbers ======
@@ -607,39 +639,50 @@
             changePerPage(val) { this.perPage = parseInt(val); this.currentPage = 1; },
             resetPage() { this.currentPage = 1; },
 
+            detailModalOpen: false,
+            selectedSub: null,
+
             openDetailModal(sub) {
                 this.selectedSub = sub;
                 this.detailModalOpen = true;
             },
 
             confirmDelete(id) {
-                Alert.confirm('Hapus Usulan?', 'Data yang dihapus tidak dapat dikembalikan. Lanjutkan?')
-                    .then((result) => {
-                        if (result.isConfirmed) {
-                            this.deleteSubmission(id);
-                        }
-                    });
+                this.deleteSubmission(id);
             },
 
-            deleteSubmission(id) {
-                axios({
-                    method: 'DELETE',
-                    url: `{{ url('learning-coordinator/tna') }}/${id}`,
-                    data: { _token: '{{ csrf_token() }}' }
-                })
-                .then(res => {
-                    if(res.data.success) {
-                        this.allSubmissions = this.allSubmissions.filter(s => s.id !== id);
-                        Alert.success('Terhapus!', 'Usulan berhasil dihapus dari sistem.');
+            async deleteSubmission(id) {
+                const result = await Alert.confirm('Hapus Usulan?', 'Data yang dihapus tidak dapat dikembalikan.');
+                if (result.isConfirmed) {
+                    try {
+                        const response = await axios.delete(`/learning-coordinator/tna/${id}`);
+                        if(response.data.success) {
+                            this.allSubmissions = this.allSubmissions.filter(s => s.id !== id);
+                            Alert.success('Terhapus!', 'Usulan berhasil dihapus dari sistem.');
+                        }
                     }
-                })
-                .catch(err => {
-                    console.error(err);
-                    Alert.error('Gagal!', 'Terjadi kesalahan saat menghapus data.');
-                });
+                    catch (err) {
+                        console.error(err);
+                        Alert.error('Gagal!', 'Terjadi kesalahan saat menghapus data.');
+                    }
+                }
             },
 
             // ====== Helpers ======
+            init() {
+                console.log('Alpine TNA List Initialized');
+                console.log('Total Submissions Received:', this.allSubmissions?.length);
+            },
+
+            resetFilters() {
+                this.searchQuery = '';
+                this.filterCategory = '';
+                this.filterStatus = '';
+                this.filterStartDate = null;
+                this.filterEndDate = null;
+                this.$dispatch('reset-date-filter');
+            },
+
             statusBadge(status) {
                 const map = {
                     draft: 'bg-zinc-100 text-zinc-500',

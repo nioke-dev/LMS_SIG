@@ -1,6 +1,6 @@
 @props(['categories', 'selected' => null])
 
-<div class="relative" x-data="{ 
+<div {{ $attributes }} class="relative" x-data="{ 
     catOpen: false, 
     catSearch: '',
     selectedCat: @js($selected),

@@ -87,7 +87,7 @@
                 {{-- Integrated Document Uploader --}}
                 <div class="pt-6 border-t border-zinc-100">
                     <label class="block text-[11px] font-black text-zinc-400 uppercase tracking-widest mb-4 ml-1">Dokumen Pendukung (PDF/Docx)</label>
-                    <x-tna.document-uploader :existingFiles="$submission->documents ?? []" />
+                    <x-tna.document-uploader :existingFiles="$submission->documents ?? []" @documents-updated="form.documents = $event.detail" />
                 </div>
             </div>
         </div>
@@ -179,17 +179,40 @@
                 
                 try {
                     const url = this.form.id ? `/learning-coordinator/tna/${this.form.id}` : '/learning-coordinator/tna';
-                    const method = 'POST'; 
                     
-                    const payload = {
-                        ...this.form,
-                        status: status,
-                        _token: '{{ csrf_token() }}'
-                    };
+                    // Use FormData to support file uploads
+                    const formData = new FormData();
+                    formData.append('title', this.form.title);
+                    formData.append('category', this.form.category || '');
+                    formData.append('urgency', this.form.urgency || 'Medium');
+                    formData.append('description', this.form.description || '');
+                    formData.append('participants_count', this.form.participants_count || 0);
+                    formData.append('status', status);
+                    formData.append('_token', '{{ csrf_token() }}');
 
-                    if (this.form.id) payload._method = 'PUT';
+                    if (this.form.id) formData.append('_method', 'PUT');
 
-                    const response = await axios({ method, url, data: payload });
+                    // Append participants
+                    this.form.participants_list.forEach((p, index) => {
+                        formData.append(`participants_list[${index}][id]`, p.id);
+                    });
+
+                    // Append documents (Files and existing metadata)
+                    this.form.documents.forEach((doc, index) => {
+                        if (doc.raw) {
+                            // Use a separate key for new file uploads to avoid collision
+                            formData.append('new_documents[]', doc.raw);
+                        } else {
+                            // This is an existing file, send its metadata
+                            formData.append(`documents[${index}][name]`, doc.name);
+                            formData.append(`documents[${index}][path]`, doc.path);
+                            formData.append(`documents[${index}][size]`, doc.size);
+                        }
+                    });
+
+                    const response = await axios.post(url, formData, {
+                        headers: { 'Content-Type': 'multipart/form-data' }
+                    });
 
                     if (response.data.success) {
                         await Alert.success('Berhasil!', response.data.message);

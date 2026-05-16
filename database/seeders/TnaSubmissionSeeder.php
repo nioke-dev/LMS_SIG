@@ -318,7 +318,10 @@ class TnaSubmissionSeeder extends Seeder
             ],
         ];
 
+        $firstUser = \App\Models\User::first();
+
         foreach ($data as $item) {
+            $item['user_id'] = $firstUser->id;
             TnaSubmission::updateOrCreate(['id' => $item['id']], $item);
         }
     }

@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('tna_submissions', function (Blueprint $table) {
             $table->string('id')->primary(); // e.g., TNA-2024-GRS-001
+            $table->foreignId('user_id')->nullable()->constrained()->onDelete('set null');
             $table->string('title');
             $table->date('submission_date');
             $table->string('category');

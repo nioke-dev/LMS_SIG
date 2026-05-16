@@ -95,7 +95,21 @@ class OrganizationSeeder extends Seeder
             'parent_id' => $sig->id,
         ]);
 
-        // Level 2: Group of Operational Human Capital (Under Dir HC)
+        // Level 2: Group of under Directorates
+        $grpUtama = Organization::create([
+            'code' => 'SIG-GRP-UTAMA',
+            'name' => 'Group of CEO Office',
+            'org_level_id' => $levelModels[2]->id,
+            'parent_id' => $dirUtama->id,
+        ]);
+
+        $grpKeuangan = Organization::create([
+            'code' => 'SIG-GRP-KEU',
+            'name' => 'Group of Financial Planning',
+            'org_level_id' => $levelModels[2]->id,
+            'parent_id' => $dirKeuangan->id,
+        ]);
+
         $grpOHC = Organization::create([
             'code' => 'SIG-GRP-OHC',
             'name' => 'Group of Operational Human Capital',
@@ -103,7 +117,21 @@ class OrganizationSeeder extends Seeder
             'parent_id' => $dirHC->id,
         ]);
 
-        // Level 3: Department of Corporate Learning & Development (Under Group OHC)
+        // Level 3: Department under Groups
+        $deptCEO = Organization::create([
+            'code' => 'SIG-DEPT-CEO',
+            'name' => 'Department of Corporate Strategy',
+            'org_level_id' => $levelModels[3]->id,
+            'parent_id' => $grpUtama->id,
+        ]);
+
+        $deptBudget = Organization::create([
+            'code' => 'SIG-DEPT-BUDGET',
+            'name' => 'Department of Budgeting',
+            'org_level_id' => $levelModels[3]->id,
+            'parent_id' => $grpKeuangan->id,
+        ]);
+
         $deptCLD = Organization::create([
             'code' => 'SIG-DEPT-CLD',
             'name' => 'Department of Corporate Learning & Development',
@@ -111,8 +139,22 @@ class OrganizationSeeder extends Seeder
             'parent_id' => $grpOHC->id,
         ]);
 
-        // Level 4: Unit of Competency and Learning Design (Under Dept CLD)
-        $unitCLD = Organization::create([
+        // Level 4: Unit under Departments
+        Organization::create([
+            'code' => 'SIG-UNIT-STRAT',
+            'name' => 'Unit of Strategic Planning',
+            'org_level_id' => $levelModels[4]->id,
+            'parent_id' => $deptCEO->id,
+        ]);
+
+        Organization::create([
+            'code' => 'SIG-UNIT-BUDGET1',
+            'name' => 'Unit of Capex Budgeting',
+            'org_level_id' => $levelModels[4]->id,
+            'parent_id' => $deptBudget->id,
+        ]);
+
+        Organization::create([
             'code' => 'SIG-UNIT-CLD',
             'name' => 'Unit of Competency and Learning Design',
             'org_level_id' => $levelModels[4]->id,

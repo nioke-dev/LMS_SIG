@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\TnaSubmissionController;
 use App\Http\Controllers\UserManagementController;
 use Illuminate\Support\Facades\Route;
 
@@ -9,7 +10,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // ----------------------------------------------------
     // LEARNER PORTAL (Public & Employee)
     // ----------------------------------------------------
-    Route::view('dashboard', 'dashboard')->name('dashboard');
+    Route::middleware(['role:employee,public'])->group(function () {
+        Route::view('dashboard', 'dashboard')->name('dashboard');
+    });
+
     Route::middleware(['role:employee'])->group(function () {
         Route::view('employee/dashboard', 'pages.employee.index')->name('employee.dashboard');
     });
@@ -41,6 +45,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     });
     Route::middleware(['role:admin_coordinator'])->group(function () {
         Route::view('admin-coordinator/dashboard', 'pages.admin-coordinator.index')->name('admin-coordinator.dashboard');
+        Route::get('admin-coordinator/merging-hub', [TnaSubmissionController::class, 'mergingHub'])->name('admin-coordinator.merging-hub');
+        Route::get('admin-coordinator/blueprint-directory', [TnaSubmissionController::class, 'blueprintDirectory'])->name('admin-coordinator.blueprint-directory');
+        Route::get('admin-coordinator/api/hierarchy', [TnaSubmissionController::class, 'getHierarchy'])->name('admin-coordinator.api.hierarchy');
+        Route::post('admin-coordinator/blueprint/initiate', [TnaSubmissionController::class, 'initiateBlueprint'])->name('admin-coordinator.blueprint.initiate');
     });
     Route::middleware(['role:sme'])->group(function () {
         Route::view('sme/dashboard', 'pages.sme.index')->name('sme.dashboard');
@@ -58,6 +66,12 @@ Route::get('auth/google/callback', [\App\Http\Controllers\Auth\SocialiteControll
 Route::middleware('guest')->group(function () {
     Route::get('backoffice', [\App\Http\Controllers\Auth\ManagementAuthController::class, 'showLoginForm'])->name('admin.login');
     Route::post('backoffice', [\App\Http\Controllers\Auth\ManagementAuthController::class, 'login'])->name('admin.login.submit');
+});
+
+// Role Selection for Multi-Role Users
+Route::middleware(['auth'])->group(function () {
+    Route::get('auth/select-role', [\App\Http\Controllers\Auth\ManagementAuthController::class, 'showRoleSelection'])->name('auth.select-role');
+    Route::post('auth/select-role', [\App\Http\Controllers\Auth\ManagementAuthController::class, 'selectRole'])->name('auth.select-role.submit');
 });
 
 require __DIR__ . '/settings.php';
