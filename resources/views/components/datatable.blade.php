@@ -1,9 +1,10 @@
 @props([
     'data',
-    'sortable' => []
+    'sortable' => [],
+    'livewire' => false
 ])
 
-<div class="space-y-4" x-data="{
+<div class="space-y-4" @if(!$livewire) x-data="{
     perPage: new URLSearchParams(window.location.search).get('per_page') || '5',
     sortCol: new URLSearchParams(window.location.search).get('sort') || 'created_at',
     sortDir: new URLSearchParams(window.location.search).get('dir') || 'desc',
@@ -29,12 +30,12 @@
         url.searchParams.set('dir', this.sortDir);
         window.location.href = url.toString();
     }
-}">
+}" @endif>
     {{-- Top Controls: Per Page Selection & Info (Outside the Card) --}}
     <div class="flex flex-col sm:flex-row items-center justify-between gap-4 px-4 py-2">
         <div class="flex items-center gap-3 w-full sm:w-auto">
             <span class="text-xs font-bold text-zinc-500">Tampilkan</span>
-            <select x-model="perPage" @change="changePerPage" class="px-4 py-2 bg-white border border-zinc-200 rounded-xl text-xs font-bold text-zinc-700 focus:bg-white focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all cursor-pointer shadow-sm">
+            <select @if($livewire) wire:model.live="perPage" @else x-model="perPage" @change="changePerPage" @endif class="px-4 py-2 bg-white border border-zinc-200 rounded-xl text-xs font-bold text-zinc-700 focus:bg-white focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all cursor-pointer shadow-sm">
                 <option value="5">5</option>
                 <option value="10">10</option>
                 <option value="25">25</option>
@@ -54,7 +55,16 @@
     </div>
 
     {{-- Main Table Container --}}
-    <div class="bg-white rounded-[2.5rem] border border-zinc-100 shadow-sm overflow-hidden">
+    <div class="bg-white rounded-[2.5rem] border border-zinc-100 shadow-sm overflow-hidden relative">
+        @if($livewire)
+            <div wire:loading class="absolute inset-0 bg-white/60 backdrop-blur-[1px] z-10 flex items-center justify-center">
+                <div class="flex items-center gap-2 px-4 py-2 bg-zinc-900/80 text-white rounded-full text-xs font-bold shadow-lg animate-pulse">
+                    <span class="material-symbols-outlined text-sm animate-spin">refresh</span>
+                    Memperbarui data...
+                </div>
+            </div>
+        @endif
+
         <table class="w-full text-left border-collapse">
             <thead>
                 <tr class="bg-zinc-50/50 border-b border-zinc-100">
@@ -71,7 +81,11 @@
         {{-- Pagination Footer --}}
         @if($data instanceof \Illuminate\Pagination\LengthAwarePaginator && $data->hasPages())
             <div class="p-8 bg-white border-t border-zinc-100 flex items-center justify-between">
-                {{ $data->links('components.datatable.pagination') }}
+                @if($livewire)
+                    {{ $data->links('components.datatable.livewire-pagination') }}
+                @else
+                    {{ $data->links('components.datatable.pagination') }}
+                @endif
             </div>
         @endif
     </div>
