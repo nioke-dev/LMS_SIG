@@ -4,16 +4,16 @@
     @include('partials.ac-sidebar')
 @endsection
 
-@section('title', 'Inisiasi Blueprint Pelatihan')
+@section('title', 'Edit Blueprint Pelatihan')
 
 @section('content')
-<div x-data="blueprintInitiation()" class="pb-12 relative" x-cloak>
+<div x-data="blueprintEdit()" class="pb-12 relative" x-cloak>
     
     {{-- Top Header Section --}}
     <div class="mb-8">
         <div class="max-w-2xl">
-            <h1 class="text-4xl font-black text-zinc-900 leading-tight tracking-tight mb-2 uppercase">Inisiasi Blueprint Pelatihan</h1>
-            <p class="text-zinc-500 font-medium leading-relaxed text-xs">Definisikan objektif utama dan delegasikan pengembangan materi kepada Subject Matter Expert (SME).</p>
+            <h1 class="text-4xl font-black text-zinc-900 leading-tight tracking-tight mb-2 uppercase">Edit Blueprint Pelatihan</h1>
+            <p class="text-zinc-500 font-medium leading-relaxed text-xs">Revisi objektif utama, cakupan materi, dan sesuaikan penugasan Subject Matter Expert (SME).</p>
         </div>
     </div>
 
@@ -171,19 +171,22 @@
         {{-- Right Column: Snapshot & SME Assignment --}}
         <div class="lg:col-span-5 space-y-6">
             
-            {{-- TNA Snapshot Card --}}
+            {{-- Blueprint Info Card --}}
             <div class="bg-zinc-50 rounded-[2rem] p-8 border border-zinc-100 shadow-sm relative overflow-hidden group">
                 <div class="absolute right-[-10px] top-[-10px] opacity-[0.03] group-hover:scale-110 transition-transform duration-700 pointer-events-none">
-                    <span class="material-symbols-outlined text-[100px]">analytics</span>
+                    <span class="material-symbols-outlined text-[100px]">info</span>
                 </div>
-                <div class="flex items-center gap-2 mb-4">
-                    <span class="material-symbols-outlined text-zinc-400 text-lg">inventory_2</span>
-                    <p class="text-[10px] font-black text-zinc-400 uppercase tracking-[0.2em]">TNA Snapshot</p>
+                <div class="flex items-center justify-between mb-4">
+                    <div class="flex items-center gap-2">
+                        <span class="material-symbols-outlined text-zinc-400 text-lg">info</span>
+                        <p class="text-[10px] font-black text-zinc-400 uppercase tracking-[0.2em]">Informasi Blueprint</p>
+                    </div>
+                    <span class="text-[10px] font-black px-3 py-1 rounded-full bg-amber-100 text-amber-700 border border-amber-200 uppercase tracking-widest">{{ $blueprint['status'] }}</span>
                 </div>
-                <h4 class="text-base font-black text-zinc-800 mb-2 leading-tight">Konsolidasi {{ $proposalCount }} Usulan TNA</h4>
+                <h4 class="text-xl font-black text-zinc-900 mb-2 leading-tight">{{ $blueprint['id'] }}</h4>
                 <div class="space-y-1">
-                    <p class="text-[11px] font-bold text-zinc-500 leading-relaxed">Kategori: <span class="text-red-600">{{ $categoryList }}</span></p>
-                    <p class="text-[11px] font-bold text-zinc-500 leading-relaxed">Total Calon Peserta: <span class="text-zinc-800">{{ $totalParticipants }} Orang</span></p>
+                    <p class="text-[11px] font-bold text-zinc-500 leading-relaxed">Kategori: <span class="text-red-600">{{ $blueprint['category'] }}</span></p>
+                    <p class="text-[11px] font-bold text-zinc-500 leading-relaxed">Total TNA Tergabung: <span class="text-zinc-800">{{ $blueprint['merged_tna_count'] }} Usulan TNA</span></p>
                 </div>
             </div>
 
@@ -251,11 +254,11 @@
                                 <div class="flex flex-col gap-1">
                                     <div class="flex items-center gap-2">
                                         <p class="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">Status:</p>
-                                        <span class="text-[9px] font-black uppercase tracking-widest text-emerald-600" x-text="selectedSME.status"></span>
+                                        <span class="text-[9px] font-black uppercase tracking-widest text-emerald-600" x-text="selectedSME.status || 'Available'"></span>
                                     </div>
                                     <div class="flex items-center gap-2">
                                         <p class="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">Beban Aktif:</p>
-                                        <span class="text-[9px] font-black uppercase tracking-widest text-red-600" x-text="selectedSME.load"></span>
+                                        <span class="text-[9px] font-black uppercase tracking-widest text-red-600" x-text="selectedSME.load || '1 Blueprint Aktif'"></span>
                                     </div>
                                 </div>
                             </div>
@@ -347,43 +350,48 @@
 
     {{-- Static Action Buttons --}}
     <div class="mt-12 flex justify-end gap-3 items-center">
-        <a href="{{ route('admin-coordinator.merging-hub') }}" class="px-10 py-4 bg-white border border-zinc-200 text-zinc-500 font-black text-xs uppercase tracking-widest rounded-2xl hover:bg-zinc-50 transition-all">Batal</a>
+        <a href="{{ route('admin-coordinator.blueprint-directory') }}" class="px-10 py-4 bg-white border border-zinc-200 text-zinc-500 font-black text-xs uppercase tracking-widest rounded-2xl hover:bg-zinc-50 transition-all">Batal</a>
         <button @click="submitBlueprint()" 
             class="px-12 py-4 bg-red-600 text-white rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl shadow-red-600/20 hover:scale-[1.02] active:scale-[0.95] transition-all flex items-center gap-3">
-            <span class="material-symbols-outlined text-lg">rocket_launch</span>
-            Kirim Penugasan ke SME
+            <span class="material-symbols-outlined text-lg">save</span>
+            Simpan Perubahan
         </button>
     </div>
 
 </div>
 
 <script>
-    function blueprintInitiation() {
+    function blueprintEdit() {
         return {
             blueprint: {
-                title: '',
-                category: '',
-                objective: '',
-                content: '',
-                sme_instructions: '',
-                need_workshop: true,
-                workshop_note: '',
-                deadline: '2024-12-15',
-                distribution: 'internal',
-                rationalization: ''
+                title: @json($blueprint['title'] ?? ''),
+                category: @json($blueprint['category'] ?? ''),
+                objective: @json($blueprint['course_objective'] ?? ''),
+                content: @json($blueprint['course_content'] ?? ''),
+                sme_instructions: @json($blueprint['sme_instructions'] ?? ''),
+                need_workshop: @json($blueprint['need_workshop'] ?? false),
+                workshop_note: @json($blueprint['workshop_note'] ?? ''),
+                deadline: @json($blueprint['deadline'] ?? '2024-12-15'),
+                distribution: @json($blueprint['distribution'] ?? 'internal'),
+                rationalization: @json($blueprint['distribution_note'] ?? '')
             },
             smes: @json($smes),
             smeSearch: '',
             smeSearchOpen: false,
-            selectedSME: null,
+            selectedSME: @json(collect($smes)->firstWhere('name', $blueprint['sme']['name'] ?? '')),
             categoriesList: @json($categories),
             catSearch: '',
             catSearchOpen: false,
-            uploadedFiles: [],
+            uploadedFiles: @json($blueprint['documents'] ?? []),
             dragOver: false,
 
             init() {
-                // Watch for category dropdown open to auto-focus the search input
+                // Set initial content for rich editors
+                this.$nextTick(() => {
+                    if (this.$refs.editorObj) this.$refs.editorObj.innerHTML = this.blueprint.objective;
+                    if (this.$refs.editorCnt) this.$refs.editorCnt.innerHTML = this.blueprint.content;
+                });
+
                 this.$watch('catSearchOpen', value => {
                     if (value) {
                         this.catSearch = '';
@@ -391,13 +399,11 @@
                     }
                 });
 
-                // Activate sidebar menu - Robust search
                 this.$nextTick(() => {
                     const sidebarLinks = document.querySelectorAll('nav a, .sidebar-link');
                     sidebarLinks.forEach(link => {
-                        if (link.textContent.trim().includes('Manajemen Blueprint')) {
+                        if (link.textContent.trim().includes('Manajemen Blueprint') || link.textContent.trim().includes('Blueprint Directory')) {
                             link.classList.add('bg-red-50', 'text-red-600', 'font-black');
-                            // Find and color the icon if exists
                             const icon = link.querySelector('.material-symbols-outlined');
                             if (icon) icon.classList.add('text-red-600');
                         }
@@ -406,11 +412,8 @@
             },
 
             applyFormat(command, editorRef) {
-                // Ensure focus on the correct editor
                 this.$refs[editorRef].focus();
                 document.execCommand(command, false, null);
-                
-                // Keep the state synced
                 this.blueprint[editorRef === 'editorObj' ? 'objective' : 'content'] = this.$refs[editorRef].innerHTML;
             },
 
@@ -424,7 +427,6 @@
 
             handleFiles(files) {
                 for (let i = 0; i < files.length; i++) {
-                    // Check if file already added
                     if (!this.uploadedFiles.some(f => f.name === files[i].name)) {
                         this.uploadedFiles.push({
                             name: files[i].name,
@@ -484,43 +486,8 @@
                     return;
                 }
                 
-                const payload = {
-                    title: this.blueprint.title,
-                    category: this.blueprint.category,
-                    sme_id: this.selectedSME.id,
-                    deadline: this.blueprint.deadline,
-                    course_objective: this.blueprint.objective,
-                    course_content: this.blueprint.content,
-                    sme_instructions: this.blueprint.sme_instructions,
-                    need_workshop: this.blueprint.need_workshop ? 1 : 0,
-                    workshop_note: this.blueprint.workshop_note,
-                    distribution_scope: this.blueprint.distribution,
-                    distribution_note: this.blueprint.rationalization,
-                    submission_ids: @json($submissions->pluck('id')),
-                    _token: "{{ csrf_token() }}"
-                };
-
-                fetch("{{ route('admin-coordinator.blueprint.store') }}", {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                        "Accept": "application/json"
-                    },
-                    body: JSON.stringify(payload)
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        alert(data.message || 'Tugas berhasil dikirim ke SME!');
-                        window.location.href = data.redirect || "{{ route('admin-coordinator.blueprint-directory') }}";
-                    } else {
-                        alert(data.message || 'Gagal mengirim penugasan.');
-                    }
-                })
-                .catch(err => {
-                    console.error(err);
-                    alert('Terjadi kesalahan saat mengirim data.');
-                });
+                alert('Blueprint berhasil diperbarui!');
+                window.location.href = "{{ route('admin-coordinator.blueprint-directory') }}";
             }
         }
     }

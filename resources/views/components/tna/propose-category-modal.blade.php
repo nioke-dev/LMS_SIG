@@ -1,13 +1,13 @@
 <div x-data="{ 
     isOpen: false,
-    form: { name: '', scope: '', reason: '', file: null },
+    form: { name: '', scope: '', reason: '', urgency: 'Medium', file: null },
     isSubmitting: false,
 
     submitPropose() {
-        if(!this.form.name || !this.form.scope || !this.form.reason) {
+        if(!this.form.name || !this.form.scope || !this.form.reaebason || !this.form.urgency) {
             Swal.fire({
                 title: 'Oops!',
-                text: 'Harap lengkapi informasi kategori yang diusulkan.',
+                text: 'Harap lengkapi informasi kategori beserta tingkat urgensinya.',
                 icon: 'warning',
                 customClass: { popup: 'rounded-[2rem]' }
             });
@@ -26,7 +26,7 @@
                 confirmButtonColor: '#00B0F0',
                 customClass: { popup: 'rounded-[2rem]' }
             });
-            this.form = { name: '', scope: '', reason: '', file: null };
+            this.form = { name: '', scope: '', reason: '', urgency: 'Medium', file: null };
         }, 1500);
     }
 }" @open-propose-modal.window="isOpen = true" class="relative z-[9999]">
@@ -73,6 +73,11 @@
                         <label class="block text-[10px] font-black text-zinc-400 uppercase tracking-widest mb-2 ml-1">Nama Kategori Baru</label>
                         <input type="text" x-model="form.name" placeholder="Misal: Teknologi Berkelanjutan"
                                class="w-full px-5 py-3.5 bg-zinc-50 border border-zinc-200 rounded-xl text-sm font-bold focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all shadow-sm">
+                    </div>
+
+                    <div>
+                        <label class="block text-[10px] font-black text-zinc-400 uppercase tracking-widest mb-2 ml-1">Tingkat Urgensi</label>
+                        <x-tna.urgency-selector :selected="'Medium'" @urgency-selected="form.urgency = $event.detail" />
                     </div>
 
                     <div>

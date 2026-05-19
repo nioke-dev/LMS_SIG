@@ -17,6 +17,8 @@ class DatabaseSeeder extends Seeder
             TnaCategorySeeder::class,
             TnaSubmissionSeeder::class,
             TnaScenarioSeeder::class,
+            TrainingHistorySeeder::class,
+            TrainingBlueprintSeeder::class,
         ]);
     }
 }

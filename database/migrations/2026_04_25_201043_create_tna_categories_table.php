@@ -12,6 +12,7 @@ return new class extends Migration
             $table->id();
             $table->string('name')->unique();
             $table->text('description')->nullable();
+            $table->foreignId('parent_id')->nullable()->constrained('tna_categories')->nullOnDelete();
             $table->timestamps();
         });
     }

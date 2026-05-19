@@ -4,7 +4,7 @@
     open: false, 
     selected: @js($selected),
     options: [
-        { value: 'Low', label: 'Low - Rutin', color: 'bg-emerald-500', bg: 'bg-emerald-50', text: 'text-emerald-600' },
+        { value: 'Low', label: 'Low - Reguler / Non-Mendesak', color: 'bg-emerald-500', bg: 'bg-emerald-50', text: 'text-emerald-600' },
         { value: 'Medium', label: 'Medium - Dibutuhkan Segera', color: 'bg-amber-500', bg: 'bg-amber-50', text: 'text-amber-600' },
         { value: 'High', label: 'High - Kritikal/Mendesak', color: 'bg-rose-500', bg: 'bg-rose-50', text: 'text-rose-600' }
     ],

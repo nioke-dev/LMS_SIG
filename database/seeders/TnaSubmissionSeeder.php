@@ -97,7 +97,7 @@ class TnaSubmissionSeeder extends Seeder
                 'id' => 'TNA-2024-GRS-006',
                 'title' => 'Effective Communication & Presentation Skills',
                 'submission_date' => '2024-02-18',
-                'category' => 'Soft Skills',
+                'category' => 'Communication & Presentation',
                 'urgency' => 'Low',
                 'status' => 'review',
                 'description' => 'Pelatihan kemampuan komunikasi efektif dan presentasi profesional untuk staf level junior.',
@@ -274,7 +274,7 @@ class TnaSubmissionSeeder extends Seeder
                 'id' => 'TNA-2024-GRS-018',
                 'title' => 'Negotiation Skills for Procurement Team',
                 'submission_date' => '2024-06-01',
-                'category' => 'Soft Skills',
+                'category' => 'Negotiation & Bargaining',
                 'urgency' => 'Medium',
                 'status' => 'rejected',
                 'description' => 'Pelatihan teknik negosiasi untuk tim procurement agar mendapatkan deal terbaik dari vendor.',
@@ -318,10 +318,15 @@ class TnaSubmissionSeeder extends Seeder
             ],
         ];
 
-        $firstUser = \App\Models\User::first();
+        $smes = \App\Models\User::whereNotNull('organization_id')->take(6)->get();
 
-        foreach ($data as $item) {
-            $item['user_id'] = $firstUser->id;
+        foreach ($data as $index => $item) {
+            $sme = $smes[$index % count($smes)];
+            $item['user_id'] = $sme->id;
+            // Jadikan beberapa status approved menjadi released agar muncul di riwayat blueprint
+            if ($item['status'] === 'approved' && $index % 2 === 0) {
+                $item['status'] = 'released';
+            }
             TnaSubmission::updateOrCreate(['id' => $item['id']], $item);
         }
     }

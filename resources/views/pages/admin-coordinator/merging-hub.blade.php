@@ -15,6 +15,18 @@
         <p class="text-zinc-500 font-medium max-w-2xl leading-relaxed text-xs">Pusat konsolidasi usulan TNA. Gabungkan usulan serupa untuk optimasi kurikulum.</p>
     </div>
 
+    @if(session('error'))
+        <div class="mb-8 p-6 bg-amber-50 border border-amber-200 rounded-[1.5rem] flex items-center gap-4 text-amber-900 shadow-sm animate-bounce">
+            <div class="w-12 h-12 bg-amber-400 text-zinc-900 rounded-2xl flex items-center justify-center font-bold shadow-md shrink-0">
+                <span class="material-symbols-outlined text-2xl">warning</span>
+            </div>
+            <div>
+                <h4 class="text-sm font-black uppercase tracking-widest">Peringatan Sistem</h4>
+                <p class="text-xs font-bold mt-0.5">{{ session('error') }}</p>
+            </div>
+        </div>
+    @endif
+
     {{-- KPI Cards Row (Medium Scale) --}}
     <div class="grid grid-cols-1 md:grid-cols-3 gap-5 mb-10">
         <div class="bg-white p-6 rounded-[1.5rem] border border-zinc-100 shadow-sm relative overflow-hidden group">
@@ -172,7 +184,13 @@
                                     </div>
                                 </template>
                             </td>
-                            <td class="px-4 py-5 text-[10px] font-black text-zinc-600 uppercase tracking-tight" x-text="sub.category"></td>
+                            <td class="px-4 py-5">
+                                <div class="text-[10px] font-black text-zinc-900 uppercase tracking-tight" x-text="sub.parent_category"></div>
+                                <div class="text-[9px] font-bold text-zinc-400 flex items-center gap-1 mt-0.5">
+                                    <span class="material-symbols-outlined text-[10px]">subdirectory_arrow_right</span>
+                                    <span x-text="sub.category"></span>
+                                </div>
+                            </td>
                             <td class="px-4 py-5">
                                 <div class="flex items-center gap-2">
                                     <img :src="'https://ui-avatars.com/api/?name=' + sub.proposer_name + '&background=random'" class="w-7 h-7 rounded-full border border-zinc-100 shadow-sm">
@@ -253,18 +271,35 @@
         <div class="w-full max-w-5xl px-4 pointer-events-auto">
             <div class="bg-red-600 rounded-[2rem] p-3 shadow-2xl flex items-center justify-between border border-white/10">
             <div class="flex items-center gap-6 pl-8 text-white">
-                <div class="w-10 h-10 rounded-full bg-white flex items-center justify-center text-red-600 shadow-lg">
+                <div class="w-10 h-10 rounded-full bg-white flex items-center justify-center text-red-600 shadow-lg shrink-0">
                     <span class="material-symbols-outlined text-xl font-bold">check</span>
                 </div>
                 <div>
-                    <p class="text-sm font-black tracking-tight"><span x-text="selectedItems.length"></span> Usulan Terpilih</p>
+                    <div class="flex items-center gap-3">
+                        <p class="text-sm font-black tracking-tight"><span x-text="selectedItems.length"></span> Usulan Terpilih</p>
+                        <template x-if="!canMerge">
+                            <span class="bg-amber-400 text-zinc-900 text-[9px] font-black px-3 py-1 rounded-full shadow-md flex items-center gap-1.5 animate-pulse uppercase tracking-widest border border-amber-300">
+                                <span class="material-symbols-outlined text-xs">warning</span>
+                                Beda Rumpun Kategori: Hanya Bisa Tolak Masal
+                            </span>
+                        </template>
+                        <template x-if="canMerge && selectedParentCategories.length === 1">
+                            <span class="bg-white/20 text-white text-[9px] font-black px-3 py-1 rounded-full flex items-center gap-1 uppercase tracking-widest border border-white/20">
+                                <span class="material-symbols-outlined text-xs">category</span>
+                                <span x-text="'Rumpun: ' + selectedParentCategories[0]"></span>
+                            </span>
+                        </template>
+                    </div>
                     <p class="text-[10px] font-bold text-red-200 uppercase tracking-widest mt-0.5">Total <span class="text-white" x-text="selectedItems.reduce((sum, id) => sum + (submissions.find(s => s.id === id)?.participants || 0), 0)"></span> Calon Peserta</p>
                 </div>
             </div>
             <div class="flex items-center gap-2 pr-2">
                 <button @click="selectedItems = []" class="px-6 py-4 text-[10px] font-black text-white hover:bg-white/10 rounded-2xl transition-all uppercase tracking-widest">Batal</button>
                 <button @click="showRejectModal(selectedItems)" class="px-6 py-4 text-[10px] font-black text-white border border-white/20 hover:bg-white/10 rounded-2xl transition-all uppercase tracking-widest">Tolak Masal</button>
-                <button @click="initiateMerge()" class="bg-white text-red-600 px-8 py-4 rounded-2xl text-[10px] font-black flex items-center gap-3 hover:bg-zinc-50 transition-all shadow-xl shadow-black/10 uppercase tracking-widest border border-white">
+                <button @click="canMerge ? initiateMerge() : alert('Kategori usulan berbeda! Pilihan lintas rumpun kategori tidak dapat di-merge untuk menjaga konsistensi kurikulum.')" 
+                        :disabled="!canMerge"
+                        class="px-8 py-4 rounded-2xl text-[10px] font-black flex items-center gap-3 transition-all shadow-xl uppercase tracking-widest border"
+                        :class="canMerge ? 'bg-white text-red-600 hover:bg-zinc-50 shadow-black/10 border-white' : 'bg-white/20 text-white/40 border-transparent cursor-not-allowed'">
                     <span class="material-symbols-outlined text-xl font-bold">auto_awesome</span>
                     Merge into 1 Blueprint
                 </button>
@@ -518,7 +553,11 @@
                     
                     {{-- Title Section --}}
                     <div class="space-y-2">
-                        <p class="text-[10px] font-black text-red-600 uppercase tracking-[0.2em]" x-text="selectedSub?.category"></p>
+                        <div class="flex items-center gap-2 flex-wrap">
+                            <span class="px-3 py-1 bg-zinc-100 text-zinc-800 rounded-full text-[9px] font-black uppercase tracking-widest border border-zinc-200" x-text="'Rumpun Induk: ' + selectedSub?.parent_category"></span>
+                            <span class="material-symbols-outlined text-zinc-400 text-xs">arrow_forward_ios</span>
+                            <span class="text-[10px] font-black text-red-600 uppercase tracking-[0.2em]" x-text="selectedSub?.category"></span>
+                        </div>
                         <h2 class="text-2xl font-black text-zinc-900 leading-tight" x-text="selectedSub?.title"></h2>
                     </div>
 
@@ -716,6 +755,17 @@
             sortColumn: 'id',
             sortDirection: 'desc',
             
+            get selectedParentCategories() {
+                let cats = this.selectedItems.map(id => {
+                    let sub = this.submissions.find(s => s.id === id);
+                    return sub ? sub.parent_category : null;
+                }).filter(Boolean);
+                return [...new Set(cats)];
+            },
+            get canMerge() {
+                return this.selectedParentCategories.length <= 1;
+            },
+
             // Participant Pagination in Modal
             participantSearch: '',
             participantPage: 1,

@@ -73,6 +73,14 @@ class ManagementAuthController extends Controller
                 ]);
             }
 
+            $redirectMap = [
+                'learning_administrator' => '/learning-admin/dashboard',
+                'learning_coordinator' => '/learning-coordinator/dashboard',
+                'admin_coordinator' => '/admin-coordinator/dashboard',
+                'sme' => '/sme/dashboard',
+                'helpdesk_admin' => '/helpdesk/dashboard',
+            ];
+
             $redirectUrl = $redirectMap[$role] ?? '/dashboard';
             
             if ($request->ajax() || $request->wantsJson()) {
