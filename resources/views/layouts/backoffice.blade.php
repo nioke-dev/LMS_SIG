@@ -21,8 +21,8 @@
     {{-- Tailwind CSS --}}
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
 
-    {{-- AlpineJS --}}
-    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    {{-- Livewire Styles --}}
+    @livewireStyles
 
     {{-- Axios Config --}}
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
@@ -574,5 +574,8 @@
             @endif
         });
     </script>
+
+    {{-- Livewire Scripts (Includes Alpine.js) --}}
+    @livewireScripts
 </body>
 </html>
